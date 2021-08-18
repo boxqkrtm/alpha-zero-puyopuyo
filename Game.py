@@ -8,6 +8,7 @@ class Game():
 
     See othello/OthelloGame.py for an example implementation.
     """
+
     def __init__(self):
         pass
 
@@ -68,7 +69,7 @@ class Game():
         Returns:
             r: 0 if game has not ended. 1 if player won, -1 if player lost,
                small non-zero value for draw.
-               
+
         """
         pass
 
@@ -86,6 +87,9 @@ class Game():
                             board as is. When the player is black, we can invert
                             the colors and return the board.
         """
+        pass
+
+    def getCanonicalFormBoard(self, board, player):
         pass
 
     def getSymmetries(self, board, pi):
