@@ -4,6 +4,7 @@ import sys
 from collections import deque
 from pickle import Pickler, Unpickler
 from random import shuffle
+from puyo.Duel import *
 
 import numpy as np
 from tqdm import tqdm
@@ -57,6 +58,7 @@ class Coach():
 
             pi = self.mcts.getActionProb(
                 self.game.getCanonicalFormBoard(board, self.curPlayer), temp=temp)
+            #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
             trainExamples.append(
                 [board.GrayScaleArray(), self.curPlayer, pi, None])
 

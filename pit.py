@@ -16,7 +16,7 @@ use this script to play any two agents against each other, or play manually with
 any agent.
 """
 
-human_vs_cpu = True
+human_vs_cpu = False
 
 g = Game()
 

@@ -1,5 +1,6 @@
 import logging
 import math
+from puyo.Duel import *
 
 import numpy as np
 
@@ -35,7 +36,7 @@ class MCTS():
                    proportional to Nsa[(s,a)]**(1./temp)
         """
         for i in range(self.args.numMCTSSims):
-            self.search(board)
+            self.search(Duel(duel=board))
 
         s = self.game.stringRepresentation(board)
         counts = [self.Nsa[(s, a)] if (
@@ -84,8 +85,6 @@ class MCTS():
             # leaf node
             self.Ps[s], v = self.nnet.predict(board.GrayScaleArray())
             valids = self.game.getValidMoves(board, 1)
-            # board.print()
-            # print(valids)
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
@@ -127,7 +126,7 @@ class MCTS():
         next_board, next_player = self.game.getNextState(board, 1, a)
         next_board = self.game.getCanonicalFormBoard(next_board, next_player)
 
-        v = self.search(next_board)
+        v = self.search(Duel(duel=next_board))
 
         if (s, a) in self.Qsa:
             self.Qsa[(s, a)] = (self.Nsa[(s, a)] *

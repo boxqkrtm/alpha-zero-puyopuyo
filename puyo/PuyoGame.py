@@ -26,30 +26,31 @@ class PuyoGame(Game):
 
     def getNextState(self, board, player, action):
         b = Duel(duel=board)
-
         #b.input(action, -1)
         state = b.status()
         # 1p 2p 둘다 판단
         if(state == 2):
             # 놓기판단
             if(player == 1):
+                #print("set 1p ", action, b.p2)
                 b.p1 = action
             else:
+                #print("set 2p ", action, b.p1)
                 b.p2 = action
 
             # 둘다 판단을 완료해야 진행 아니면 턴만 넘기고 진행안함
             if(b.p1 != -1 and b.p2 != -1):
                 b.input(b.p1, b.p2)
                 b.run()
-                return (b, -player)
+                b.p1, b.p2 = -1, -1
             else:
                 return (b, -player)
 
-        elif(state == 0):
+        elif(state == 0 and player == 1):
             # 1p 놓기
             b.input(action, 0)
             b.run()
-        elif(state == 1):
+        elif(state == 1 and player == -1):
             # 2p 놓기
             b.input(0, action)
             b.run()
@@ -86,21 +87,14 @@ class PuyoGame(Game):
             # board.print()
             return 0
 
-    def getCanonicalForm(self, board, player):
-        # return state if player==1, else return -state if player==-1
-        if(player == 1):
-            return board.GrayScaleArray()
-        else:
-            return board.GrayScaleArray(board.getGameInfo(1))
-
     def getCanonicalFormBoard(self, board, player):
-        d = Duel(duel=board)
+        b = Duel(duel=board)
         # return state if player==1, else return -state if player==-1
-        if(d.isPlayer == player):
-            return d
+        if(1 == player):
+            return b
         else:
-            d.swap()
-            return d
+            b.swap()
+            return b
 
     def getScore(self, board, player):
         state = board.status()
