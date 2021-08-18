@@ -53,21 +53,16 @@ class Coach():
 
         while True:
             episodeStep += 1
-            canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer)
             temp = int(episodeStep < self.args.tempThreshold)
 
-            pi = self.mcts.getActionProb(board, temp=temp)
-            ''' puyo game has no symmetries
-            sym = self.game.getSymmetries(canonicalBoard, pi)
-            for b, p in sym:
-                trainExamples.append([b, self.curPlayer, p, None])
-            '''
+            pi = self.mcts.getActionProb(
+                self.game.getCanonicalFormBoard(board, self.curPlayer), temp=temp)
+            trainExamples.append(
+                [board.GrayScaleArray(), self.curPlayer, pi, None])
 
             action = np.random.choice(len(pi), p=pi)
             board, self.curPlayer = self.game.getNextState(
                 board, self.curPlayer, action)
-
-            # board.print()
 
             r = self.game.getGameEnded(board, self.curPlayer)
 

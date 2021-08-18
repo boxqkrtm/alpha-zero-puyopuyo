@@ -1,0 +1,2 @@
+python pit.py
+PAUSE

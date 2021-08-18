@@ -1,2 +1,0 @@
-python puyoreplaygen.py
-PAUSE

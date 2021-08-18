@@ -29,24 +29,29 @@ class PuyoGame(Game):
 
         #b.input(action, -1)
         state = b.status()
+        # 1p 2p 둘다 판단
         if(state == 2):
-            # 둘다 놔야댐 1p
-            if(b.p1 == -1):
+            # 놓기판단
+            if(player == 1):
                 b.p1 = action
             else:
                 b.p2 = action
+
+            # 둘다 판단을 완료해야 진행 아니면 턴만 넘기고 진행안함
+            if(b.p1 != -1 and b.p2 != -1):
                 b.input(b.p1, b.p2)
                 b.run()
-                b.p1, b.p2 = -1, -1
-                return (b, 1)
-            return (b, -1)  # 자신의 입력 설정 후 2p로 넘겨줌
+                return (b, -player)
+            else:
+                return (b, -player)
+
         elif(state == 0):
             # 1p 놓기
-            b.input(action, b.p2)
+            b.input(action, 0)
             b.run()
-        elif(state == 0):
+        elif(state == 1):
             # 2p 놓기
-            b.input(b.p1, action)
+            b.input(0, action)
             b.run()
 
         # state 판단하여 board 돌려줌
@@ -59,7 +64,7 @@ class PuyoGame(Game):
         elif(state == 2):  # 둘다 필요할땐 1p로 설정
             return (b, 1)
         else:
-            return (b, 0)  # game over
+            return (b, 1)  # game over
 
     def getValidMoves(self, board, player):
         if(player == 1):
@@ -89,12 +94,13 @@ class PuyoGame(Game):
             return board.GrayScaleArray(board.getGameInfo(1))
 
     def getCanonicalFormBoard(self, board, player):
+        d = Duel(duel=board)
         # return state if player==1, else return -state if player==-1
-        if(player == 1):
-            return board
+        if(d.isPlayer == player):
+            return d
         else:
-            board.swap()
-            return board
+            d.swap()
+            return d
 
     def getScore(self, board, player):
         state = board.status()
@@ -104,19 +110,6 @@ class PuyoGame(Game):
             return -1*player
         elif(state == 5):
             return 0  # draw
-
-    def getSymmetries(self, board, pi):
-        """
-        Input:
-            board: current board
-            pi: policy vector of size self.getActionSize()
-
-        Returns:
-            symmForms: a list of [(board,pi)] where each tuple is a symmetrical
-                       form of the board and the corresponding pi vector. This
-                       is used when training the neural network from examples.
-        """
-        pass
 
     def stringRepresentation(self, board):
         """

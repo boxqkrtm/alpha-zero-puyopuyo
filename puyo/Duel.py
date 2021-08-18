@@ -25,6 +25,7 @@ class Duel(object):
     def __init__(self, seed=None, duel=None, obj=None):
         self.p1 = -1
         self.p2 = -1
+        self.isPlayer = 1
         '''
         Duel 오브젝트를 입력시 복제, 시드입력시 새 Duel객체를 생성합니다
         '''
@@ -47,6 +48,7 @@ class Duel(object):
             self.obj = dueldll.DuelCopy(duel.obj)
             self.p1 = duel.p1
             self.p2 = duel.p2
+            self.isPlayer = duel.isPlayer
         else:
             # create object
             dueldll.DuelNew.argtypes = [c_int]
@@ -67,6 +69,10 @@ class Duel(object):
         dueldll.DuelSwap.argtypes = [c_void_p]
         dueldll.DuelSwap.restype = c_void_p
         dueldll.DuelSwap(self.obj)
+        tmp = self.p1
+        self.p1 = self.p2
+        self.p2 = tmp
+        self.isPlayer = -self.isPlayer
 
     def print(self):
         dueldll.DuelPrint.argtypes = [c_void_p]
@@ -272,24 +278,7 @@ class Duel(object):
         gameInfo = gameInfo.obj
         return [self.GameInfoGetMyNext(gameInfo), self.GameInfoGetOppNext(gameInfo), self.GameInfoGetMyOjama(gameInfo), self.GameInfoGetOppOjama(gameInfo), self.GameInfoGetMyAllClear(gameInfo), self.GameInfoGetOppAllClear(gameInfo), self.GameInfoGetMyEventFrame(gameInfo), self.GameInfoGetOppEventFrame(gameInfo)]
 
-    def GetValidMoves(self):
-        state = self.status()
-        validmoves = []
-        if(state == 0 or state == 2):
-            for i in range(22):
-                if self.inputTest(0, i) == True:
-                    validmoves += [i]
-        elif(state == 1):
-            for i in range(22):
-                if self.inputTest(1, i) == True:
-                    validmoves += [i]
-        elif(state >= 3):
-            pass
-
-        return validmoves
-
     def GetValidMovesPlayer(self, player):
-        state = self.status()
         validmoves = []
         for i in range(22):
             if self.inputTest(player, i) == True:
@@ -297,7 +286,6 @@ class Duel(object):
         return np.array(validmoves)
 
     def GetValidMovesPlayerMask(self, player):
-        state = self.status()
         validmoves = []
         for i in range(22):
             if self.inputTest(player, i) == True:
@@ -306,26 +294,6 @@ class Duel(object):
                 validmoves += [0]
 
         return np.array(validmoves)
-
-    def GetValidMoves_masking(self):
-        state = self.status()
-        validmoves = []
-        if(state == 0 or state == 2):
-            for i in range(22):
-                if self.inputTest(0, i) == True:
-                    validmoves += [1]
-                else:
-                    validmoves += [0]
-
-        elif(state == 1):
-            for i in range(22):
-                if self.inputTest(1, i) == True:
-                    validmoves += [1]
-                else:
-                    validmoves += [0]
-        elif(state >= 3):
-            pass
-        return np.asarray(validmoves)
 
     def GetGameEnded(self):
         copycat = Duel(duel=self)

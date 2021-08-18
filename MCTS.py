@@ -84,6 +84,8 @@ class MCTS():
             # leaf node
             self.Ps[s], v = self.nnet.predict(board.GrayScaleArray())
             valids = self.game.getValidMoves(board, 1)
+            # board.print()
+            # print(valids)
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
@@ -94,6 +96,8 @@ class MCTS():
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.
                 log.error("All valid moves were masked, doing a workaround.")
+                board.print()
+                print(valids)
                 self.Ps[s] = self.Ps[s] + valids
                 self.Ps[s] /= np.sum(self.Ps[s])
 
@@ -121,9 +125,7 @@ class MCTS():
 
         a = best_act
         next_board, next_player = self.game.getNextState(board, 1, a)
-        next_s = self.game.getCanonicalForm(next_board, next_player)
         next_board = self.game.getCanonicalFormBoard(next_board, next_player)
-        # next_board.print()
 
         v = self.search(next_board)
 
