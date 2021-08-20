@@ -54,7 +54,7 @@ class MCTS():
         probs = [x / counts_sum for x in counts]
         return probs
 
-    def search(self, board):
+    def search(self, board, depth=0):
         """
         This function performs one iteration of MCTS. It is recursively called
         till a leaf node is found. The action chosen at each node is one that
@@ -77,6 +77,9 @@ class MCTS():
 
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(board, 1)
+            if(depth >= 800):
+                # 깊이가 너무 깊어지면 무승부 처리
+                self.Es[s] = -2
         if self.Es[s] != 0:
             # terminal node
             return -self.Es[s]
@@ -126,7 +129,8 @@ class MCTS():
         next_board, next_player = self.game.getNextState(board, 1, a)
         next_board = self.game.getCanonicalFormBoard(next_board, next_player)
 
-        v = self.search(Duel(duel=next_board))
+        depth += 1
+        v = self.search(Duel(duel=next_board), depth)
 
         if (s, a) in self.Qsa:
             self.Qsa[(s, a)] = (self.Nsa[(s, a)] *
