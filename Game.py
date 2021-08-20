@@ -73,7 +73,7 @@ class Game():
         """
         pass
 
-    def getCanonicalForm(self, board, player):
+    def getCanonicalFormBoard(self, board, player):
         """
         Input:
             board: current board
@@ -87,23 +87,6 @@ class Game():
                             board as is. When the player is black, we can invert
                             the colors and return the board.
         """
-        pass
-
-    def getCanonicalFormBoard(self, board, player):
-        pass
-
-    def getSymmetries(self, board, pi):
-        """
-        Input:
-            board: current board
-            pi: policy vector of size self.getActionSize()
-
-        Returns:
-            symmForms: a list of [(board,pi)] where each tuple is a symmetrical
-                       form of the board and the corresponding pi vector. This
-                       is used when training the neural network from examples.
-        """
-        pass
 
     def stringRepresentation(self, board):
         """

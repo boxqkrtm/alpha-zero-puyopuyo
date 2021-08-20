@@ -60,7 +60,7 @@ class Coach():
                 self.game.getCanonicalFormBoard(board, self.curPlayer), temp=temp)
             #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
             trainExamples.append(
-                [board.GrayScaleArray(), self.curPlayer, pi, None])
+                [board.GrayScaleArray(board.getGameInfo(0 if self.curPlayer == 1 else 1)), self.curPlayer, pi, None])
 
             action = np.random.choice(len(pi), p=pi)
             board, self.curPlayer = self.game.getNextState(

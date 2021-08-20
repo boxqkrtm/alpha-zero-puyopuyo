@@ -96,15 +96,6 @@ class PuyoGame(Game):
             b.swap()
             return b
 
-    def getScore(self, board, player):
-        state = board.status()
-        if(state == 3):
-            return 1*player
-        elif(state == 4):
-            return -1*player
-        elif(state == 5):
-            return 0  # draw
-
     def stringRepresentation(self, board):
         """
         Input:
