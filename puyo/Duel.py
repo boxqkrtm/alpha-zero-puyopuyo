@@ -51,6 +51,8 @@ class Duel(object):
             self.isPlayer = duel.isPlayer
         else:
             # create object
+            if(seed == None):
+                seed = random.randint(0, 65535)
             dueldll.DuelNew.argtypes = [c_int]
             dueldll.DuelNew.restype = c_void_p
             self.obj = dueldll.DuelNew(0)
