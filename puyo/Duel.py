@@ -55,7 +55,7 @@ class Duel(object):
                 seed = random.randint(0, 65535)
             dueldll.DuelNew.argtypes = [c_int]
             dueldll.DuelNew.restype = c_void_p
-            self.obj = dueldll.DuelNew(0)
+            self.obj = dueldll.DuelNew(seed)
             self.input(0, 0)
             self.run()  # init
 
