@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 coloredlogs.install(level='INFO')  # Change this to DEBUG to see more info.
 
 args = dotdict({
-    'numIters': 100,  # 1000
+    'numIters': 1000,  # 1000
     # Number of complete self-play games to simulate during a new iteration.
     'numEps': 100,  # 100
     'tempThreshold': 15,        #
@@ -22,13 +22,13 @@ args = dotdict({
     'maxlenOfQueue': 200000,
     'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
-    'arenaCompare': 30,
+    'arenaCompare': 4,
     'cpuct': 3,
 
     'checkpoint': './temp/',
     'load_model': True,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
-    'numItersForTrainExamplesHistory': 20,
+    'numItersForTrainExamplesHistory': 10,
 
 })
 

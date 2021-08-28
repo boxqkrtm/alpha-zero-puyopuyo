@@ -16,7 +16,7 @@ sys.path.append('../../')
 args = dotdict({
     'lr': 0.01,
     'dropout': 0,
-    'epochs': 10,
+    'epochs': 5,
     'batch_size': 512,
     'cuda': True,  # torch.cuda.is_available()
     'num_channels': 256,

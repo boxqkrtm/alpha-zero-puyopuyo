@@ -36,7 +36,7 @@ class MCTS():
                    proportional to Nsa[(s,a)]**(1./temp)
         """
         for i in range(self.args.numMCTSSims):
-            self.search(Duel(duel=board))
+            self.search(Duel(duel=board), depth = 0)
 
         s = self.game.stringRepresentation(board)
         counts = [self.Nsa[(s, a)] if (
@@ -131,7 +131,7 @@ class MCTS():
         next_board, next_player = self.game.getNextState(board, 1, a)
         next_board = self.game.getCanonicalFormBoard(next_board, next_player)
 
-        v = self.search(Duel(duel=next_board), depth)
+        v = self.search(Duel(duel=next_board), depth+1)
 
         if (s, a) in self.Qsa:
             self.Qsa[(s, a)] = (self.Nsa[(s, a)] *
