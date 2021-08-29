@@ -12,18 +12,39 @@ from puyo.keras.NNet import NNetWrapper as nn
 
 import numpy as np
 from tqdm import tqdm
+from utils import *
 
 from Arena import Arena
 from MCTS import MCTS
 
 log = logging.getLogger(__name__)
 
+args = dotdict({
+    'numIters': 1000,  # 1000
+    # Number of complete self-play games to simulate during a new iteration.
+    'numEps': 100,  # 100
+    'tempThreshold': 15,        #
+    # During arena playoff, new neural net will be accepted if threshold or more of games are won.
+    'updateThreshold': 0.6,
+    # Number of game examples to train the neural networks.
+    'maxlenOfQueue': 200000,
+    'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
+    # Number of games to play during arena play to determine if new net will be accepted.
+    'arenaCompare': 4,
+    'cpuct': 3,
+
+    'checkpoint': './temp/',
+    'load_model': False,
+    'load_folder_file': ('./temp/', 'best.pth.tar'),
+    'numItersForTrainExamplesHistory': 20,
+})
+
 proreturn = {}
-threads = 1
-nnets = [nn(Game) for i in range(threads)]
+threads = 10
+nnets = nn(Game())
 
 def executeEpisode(pn, args):
-    global proreturn, nnets
+    global proreturn, nnets, mcts
     """
     This function executes one episode of self-play, starting with player 1.
     As the game is played, each turn is added as a training example to
@@ -40,7 +61,8 @@ def executeEpisode(pn, args):
                         the player eventually won the game, else -1.
     """
     game = Game()
-    nnet = nnets[pn]
+    nnet = nnets
+    mcts = MCTS(Game(), nnets, args)
     if args.load_model:
         log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
         nnet.load_checkpoint(
@@ -51,7 +73,6 @@ def executeEpisode(pn, args):
     board = game.getInitBoard()
     curPlayer = 1
     episodeStep = 0
-    mcts = MCTS(game, nnet, args)
 
     while True:
         episodeStep += 1
@@ -79,15 +100,20 @@ class Coach():
     in Game and NeuralNet. args are specified in main.py.
     """
 
-    def __init__(self, args):
+    def __init__(self):
+        global mcts, args
         self.args = args
+        self.pnet = nnets.__class__(Game())
+        if(args.load_model == True):
+            log.info("Loading 'trainExamples' from file...")
+            self.loadTrainExamples()
         # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.trainExamplesHistory = []
         self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
 
 
     def learn(self):
-        global proreturn, nnets, threads
+        global proreturn, nnets, threads, mcts
         """
         Performs numIters iterations with numEps episodes of self-play in each
         iteration. After every iteration, it retrains neural network with
@@ -103,7 +129,8 @@ class Coach():
             if not self.skipFirstSelfPlay or i > 1:
                 iterationTrainExamples = deque(
                     [], maxlen=self.args.maxlenOfQueue)
-                for _ in tqdm(range(self.args.numEps), desc="Self Play"):
+
+                for _ in tqdm(range(0,self.args.numEps, threads), desc="Self Play"):
                     # reset search tree
                     pro = []
                     proreturn = {}

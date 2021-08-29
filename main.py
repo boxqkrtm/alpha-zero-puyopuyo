@@ -10,37 +10,9 @@ log = logging.getLogger(__name__)
 
 coloredlogs.install(level='INFO')  # Change this to DEBUG to see more info.
 
-
-args = dotdict({
-    'numIters': 1000,  # 1000
-    # Number of complete self-play games to simulate during a new iteration.
-    'numEps': 100,  # 100
-    'tempThreshold': 15,        #
-    # During arena playoff, new neural net will be accepted if threshold or more of games are won.
-    'updateThreshold': 0.6,
-    # Number of game examples to train the neural networks.
-    'maxlenOfQueue': 200000,
-    'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
-    # Number of games to play during arena play to determine if new net will be accepted.
-    'arenaCompare': 4,
-    'cpuct': 3,
-
-    'checkpoint': './temp/',
-    'load_model': False,
-    'load_folder_file': ('./temp/', 'best.pth.tar'),
-    'numItersForTrainExamplesHistory': 20,
-
-})
-
-
 def main():
     log.info('Loading the Coach...')
-    c = Coach(args)
-
-    if args.load_model:
-        log.info("Loading 'trainExamples' from file...")
-        c.loadTrainExamples()
-
+    c = Coach()
     log.info('Starting the learning process 🎉')
     c.learn()
 
