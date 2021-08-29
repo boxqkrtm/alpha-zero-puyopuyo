@@ -6,7 +6,7 @@ from pickle import Pickler, Unpickler
 from random import shuffle
 from puyo.Duel import *
 from puyo.PuyoGame import PuyoGame as Game
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Manager
 from puyo.PuyoGame import PuyoGame as Game
 from puyo.pytorch.NNet import NNetWrapper as nn
 
@@ -28,7 +28,7 @@ args = dotdict({
     'updateThreshold': 0.6,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 4,
     'cpuct': 3,
@@ -43,7 +43,7 @@ proreturn = {}
 threads = 5
 nnet = nn(Game())
 
-def executeEpisode(pn, args):
+def executeEpisode(pn, args, returndict):
     global proreturn, nnet, mcts
     """
     This function executes one episode of self-play, starting with player 1.
@@ -92,7 +92,7 @@ def executeEpisode(pn, args):
         r = game.getGameEnded(board, curPlayer)
 
         if r != 0:
-            proreturn[pn] = [(x[0], x[2], r * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
+            returndict[pn] = [(x[0], x[2], r * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
             return
 
 class Coach():
@@ -135,16 +135,17 @@ class Coach():
                 for _ in tqdm(range(0,self.args.numEps, threads), desc="Self Play"):
                     # reset search tree
                     pro = []
-                    proreturn = {}
+                    manager = Manager()
+                    returndict = manager.dict()
                     for a in range(threads):
                         args = self.args
-                        pro.append(Process(target=executeEpisode, args=(i, args)))
-                        #pro.append(Process(target=executeEpisode, args=(game, nnet, args, i)))
+                        pro.append(Process(target=executeEpisode, args=(i, args,returndict) ))
                     for a in pro:
                         a.start()
                     for a in pro:
                         a.join()
-                    for a in proreturn:
+
+                    for a in returndict.values():
                         iterationTrainExamples += a
 
                 # save the iteration examples to the history
