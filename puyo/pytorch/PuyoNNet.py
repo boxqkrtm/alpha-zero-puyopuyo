@@ -21,10 +21,8 @@ class PuyoNNet(nn.Module):
         self.conv1 = nn.Conv2d(1, args.num_channels, 3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(
             args.num_channels, args.num_channels, 3, stride=1, padding=1)
-        self.conv3 = nn.Conv2d(
-            args.num_channels, args.num_channels, 3, stride=1)
-        self.conv4 = nn.Conv2d(
-            args.num_channels, args.num_channels, 3, stride=1)
+        self.conv3 = nn.Conv2d( args.num_channels, args.num_channels, 3, stride=1)
+        self.conv4 = nn.Conv2d( args.num_channels, args.num_channels, 3, stride=1)
 
         self.bn1 = nn.BatchNorm2d(args.num_channels)
         self.bn2 = nn.BatchNorm2d(args.num_channels)
@@ -59,8 +57,7 @@ class PuyoNNet(nn.Module):
 
         s = F.dropout(F.relu(self.fc_bn1(self.fc1(s))), p=self.args.dropout,
                       training=self.training)  # batch_size x 1024
-        s = F.dropout(F.relu(self.fc_bn2(self.fc2(s))), p=self.args.dropout,
-                      training=self.training)  # batch_size x 512
+        s = F.dropout(F.relu(self.fc_bn2(self.fc2(s))), p=self.args.dropout, training=self.training)  # batch_size x 512
 
         # batch_size x action_size
         pi = self.fc3(s)

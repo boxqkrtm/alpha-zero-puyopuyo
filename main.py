@@ -3,13 +3,13 @@ import logging
 import coloredlogs
 
 from Coach import Coach
-from puyo.PuyoGame import PuyoGame as Game
-from puyo.pytorch.NNet import NNetWrapper as nn
+
 from utils import *
 
 log = logging.getLogger(__name__)
 
 coloredlogs.install(level='INFO')  # Change this to DEBUG to see more info.
+
 
 args = dotdict({
     'numIters': 1000,  # 1000
@@ -20,35 +20,22 @@ args = dotdict({
     'updateThreshold': 0.6,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 4,
     'cpuct': 3,
 
     'checkpoint': './temp/',
-    'load_model': True,
+    'load_model': False,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
-    'numItersForTrainExamplesHistory': 10,
+    'numItersForTrainExamplesHistory': 20,
 
 })
 
 
 def main():
-    log.info('Loading %s...', Game.__name__)
-    g = Game()
-
-    log.info('Loading %s...', nn.__name__)
-    nnet = nn(g)
-
-    if args.load_model:
-        log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
-        nnet.load_checkpoint(
-            args.load_folder_file[0], args.load_folder_file[1])
-    else:
-        log.warning('Not loading a checkpoint!')
-
     log.info('Loading the Coach...')
-    c = Coach(g, nnet, args)
+    c = Coach(args)
 
     if args.load_model:
         log.info("Loading 'trainExamples' from file...")

@@ -5,6 +5,10 @@ from collections import deque
 from pickle import Pickler, Unpickler
 from random import shuffle
 from puyo.Duel import *
+from puyo.PuyoGame import PuyoGame as Game
+from multiprocessing import Process, Queue
+from puyo.PuyoGame import PuyoGame as Game
+from puyo.keras.NNet import NNetWrapper as nn
 
 import numpy as np
 from tqdm import tqdm
@@ -14,6 +18,60 @@ from MCTS import MCTS
 
 log = logging.getLogger(__name__)
 
+proreturn = {}
+threads = 1
+nnets = [nn(Game) for i in range(threads)]
+
+def executeEpisode(pn, args):
+    global proreturn, nnets
+    """
+    This function executes one episode of self-play, starting with player 1.
+    As the game is played, each turn is added as a training example to
+    trainExamples. The game is played till the game ends. After the game
+    ends, the outcome of the game is used to assign values to each example
+    in trainExamples.
+
+    It uses a temp=1 if episodeStep < tempThreshold, and thereafter
+    uses temp=0.
+
+    Returns:
+        trainExamples: a list of examples of the form (canonicalBoard, currPlayer, pi,v)
+                        pi is the MCTS informed policy vector, v is +1 if
+                        the player eventually won the game, else -1.
+    """
+    game = Game()
+    nnet = nnets[pn]
+    if args.load_model:
+        log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
+        nnet.load_checkpoint(
+            args.load_folder_file[0], args.load_folder_file[1])
+    else:
+        log.warning('Not loading a checkpoint!')
+    trainExamples = []
+    board = game.getInitBoard()
+    curPlayer = 1
+    episodeStep = 0
+    mcts = MCTS(game, nnet, args)
+
+    while True:
+        episodeStep += 1
+        temp = int(episodeStep < args.tempThreshold)
+
+        pi = mcts.getActionProb(
+            game.getCanonicalFormBoard(board, curPlayer), temp=temp)
+        #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
+        trainExamples.append(
+            [board.GrayScaleArray(board.getGameInfo(0 if curPlayer == 1 else 1)), curPlayer, pi, None])
+
+        action = np.random.choice(len(pi), p=pi)
+        board, curPlayer = game.getNextState(
+            board, curPlayer, action)
+
+        r = game.getGameEnded(board, curPlayer)
+
+        if r != 0:
+            proreturn[pn] = [(x[0], x[2], r * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
+            return
 
 class Coach():
     """
@@ -21,57 +79,15 @@ class Coach():
     in Game and NeuralNet. args are specified in main.py.
     """
 
-    def __init__(self, game, nnet, args):
-        self.game = game
-        self.nnet = nnet
-        self.pnet = self.nnet.__class__(self.game)  # the competitor network
+    def __init__(self, args):
         self.args = args
-        self.mcts = MCTS(self.game, self.nnet, self.args)
         # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.trainExamplesHistory = []
         self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
 
-    def executeEpisode(self):
-        """
-        This function executes one episode of self-play, starting with player 1.
-        As the game is played, each turn is added as a training example to
-        trainExamples. The game is played till the game ends. After the game
-        ends, the outcome of the game is used to assign values to each example
-        in trainExamples.
-
-        It uses a temp=1 if episodeStep < tempThreshold, and thereafter
-        uses temp=0.
-
-        Returns:
-            trainExamples: a list of examples of the form (canonicalBoard, currPlayer, pi,v)
-                           pi is the MCTS informed policy vector, v is +1 if
-                           the player eventually won the game, else -1.
-        """
-        trainExamples = []
-        board = self.game.getInitBoard()
-        self.curPlayer = 1
-        episodeStep = 0
-
-        while True:
-            episodeStep += 1
-            temp = int(episodeStep < self.args.tempThreshold)
-
-            pi = self.mcts.getActionProb(
-                self.game.getCanonicalFormBoard(board, self.curPlayer), temp=temp)
-            #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
-            trainExamples.append(
-                [board.GrayScaleArray(board.getGameInfo(0 if self.curPlayer == 1 else 1)), self.curPlayer, pi, None])
-
-            action = np.random.choice(len(pi), p=pi)
-            board, self.curPlayer = self.game.getNextState(
-                board, self.curPlayer, action)
-
-            r = self.game.getGameEnded(board, self.curPlayer)
-
-            if r != 0:
-                return [(x[0], x[2], r * ((-1) ** (x[1] != self.curPlayer))) for x in trainExamples]
 
     def learn(self):
+        global proreturn, nnets, threads
         """
         Performs numIters iterations with numEps episodes of self-play in each
         iteration. After every iteration, it retrains neural network with
@@ -87,11 +103,20 @@ class Coach():
             if not self.skipFirstSelfPlay or i > 1:
                 iterationTrainExamples = deque(
                     [], maxlen=self.args.maxlenOfQueue)
-
                 for _ in tqdm(range(self.args.numEps), desc="Self Play"):
                     # reset search tree
-                    self.mcts = MCTS(self.game, self.nnet, self.args)
-                    iterationTrainExamples += self.executeEpisode()
+                    pro = []
+                    proreturn = {}
+                    for i in range(threads):
+                        args = self.args
+                        pro.append(Process(target=executeEpisode, args=(i, args)))
+                        #pro.append(Process(target=executeEpisode, args=(game, self.nnet, args, i)))
+                    for i in pro:
+                        i.start()
+                    for i in pro:
+                        i.join()
+                    for i in proreturn:
+                        iterationTrainExamples += i
 
                 # save the iteration examples to the history
                 self.trainExamplesHistory.append(iterationTrainExamples)
