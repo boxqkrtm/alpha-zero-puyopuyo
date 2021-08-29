@@ -7,7 +7,7 @@ import Arena
 from MCTS import MCTS
 from puyo.PuyoGame import PuyoGame as Game
 from puyo.PuyoPlayers import *
-from puyo.keras.NNet import NNetWrapper as NNet
+from puyo.pytorch.NNet import NNetWrapper as NNet
 from utils import *
 
 os.system("chcp 65001")
