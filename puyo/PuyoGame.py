@@ -76,7 +76,13 @@ class PuyoGame(Game):
     def getGameEnded(self, board, player):
         # return 0 if not ended, 1 if player 1 won, -1 if player 1 lost
         # player = 1
+        isflip = False
+        if(board.isPlayer == -1):
+            self.getCanonicalFormBoard(board, -1)
+            isflip = True
         state = board.status()
+        if(isflip == True):
+            self.getCanonicalFormBoard(board, -1)
         if(state == 3):
             return 1
         elif(state == 4):
@@ -86,6 +92,7 @@ class PuyoGame(Game):
         else:
             # board.print()
             return 0
+
 
     def getCanonicalFormBoard(self, board, player):
         b = Duel(duel=board)
