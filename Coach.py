@@ -8,7 +8,7 @@ from puyo.Duel import *
 from puyo.PuyoGame import PuyoGame as Game
 from multiprocessing import Process, Queue
 from puyo.PuyoGame import PuyoGame as Game
-from puyo.keras.NNet import NNetWrapper as nn
+from puyo.pytorch.NNet import NNetWrapper as nn
 
 import numpy as np
 from tqdm import tqdm
@@ -28,7 +28,7 @@ args = dotdict({
     'updateThreshold': 0.6,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 4,
     'cpuct': 3,
@@ -40,11 +40,11 @@ args = dotdict({
 })
 
 proreturn = {}
-threads = 10
-nnets = nn(Game())
+threads = 5
+nnet = nn(Game())
 
 def executeEpisode(pn, args):
-    global proreturn, nnets, mcts
+    global proreturn, nnet, mcts
     """
     This function executes one episode of self-play, starting with player 1.
     As the game is played, each turn is added as a training example to
@@ -61,14 +61,15 @@ def executeEpisode(pn, args):
                         the player eventually won the game, else -1.
     """
     game = Game()
-    nnet = nnets
-    mcts = MCTS(Game(), nnets, args)
+    nnet = nnet
+    mcts = MCTS(Game(), nnet, args)
     if args.load_model:
-        log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
+        #log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
         nnet.load_checkpoint(
             args.load_folder_file[0], args.load_folder_file[1])
     else:
-        log.warning('Not loading a checkpoint!')
+        pass
+        #log.warning('Not loading a checkpoint!')
     trainExamples = []
     board = game.getInitBoard()
     curPlayer = 1
@@ -103,7 +104,8 @@ class Coach():
     def __init__(self):
         global mcts, args
         self.args = args
-        self.pnet = nnets.__class__(Game())
+        self.pnet = nnet.__class__(Game())
+        self.game = Game()
         if(args.load_model == True):
             log.info("Loading 'trainExamples' from file...")
             self.loadTrainExamples()
@@ -113,7 +115,7 @@ class Coach():
 
 
     def learn(self):
-        global proreturn, nnets, threads, mcts
+        global proreturn, nnet, threads, mcts
         """
         Performs numIters iterations with numEps episodes of self-play in each
         iteration. After every iteration, it retrains neural network with
@@ -134,16 +136,16 @@ class Coach():
                     # reset search tree
                     pro = []
                     proreturn = {}
-                    for i in range(threads):
+                    for a in range(threads):
                         args = self.args
                         pro.append(Process(target=executeEpisode, args=(i, args)))
-                        #pro.append(Process(target=executeEpisode, args=(game, self.nnet, args, i)))
-                    for i in pro:
-                        i.start()
-                    for i in pro:
-                        i.join()
-                    for i in proreturn:
-                        iterationTrainExamples += i
+                        #pro.append(Process(target=executeEpisode, args=(game, nnet, args, i)))
+                    for a in pro:
+                        a.start()
+                    for a in pro:
+                        a.join()
+                    for a in proreturn:
+                        iterationTrainExamples += a
 
                 # save the iteration examples to the history
                 self.trainExamplesHistory.append(iterationTrainExamples)
@@ -163,14 +165,14 @@ class Coach():
             shuffle(trainExamples)
 
             # training new network, keeping a copy of the old one
-            self.nnet.save_checkpoint(
+            nnet.save_checkpoint(
                 folder=self.args.checkpoint, filename='temp.pth.tar')
             self.pnet.load_checkpoint(
                 folder=self.args.checkpoint, filename='temp.pth.tar')
             pmcts = MCTS(self.game, self.pnet, self.args)
 
-            self.nnet.train(trainExamples)
-            nmcts = MCTS(self.game, self.nnet, self.args)
+            nnet.train(trainExamples)
+            nmcts = MCTS(self.game, nnet, self.args)
 
             log.info('PITTING AGAINST PREVIOUS VERSION')
             arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
@@ -181,13 +183,13 @@ class Coach():
                      (nwins, pwins, draws))
             if pwins + nwins == 0 or float(nwins) / (pwins + nwins) < self.args.updateThreshold:
                 log.info('REJECTING NEW MODEL')
-                self.nnet.load_checkpoint(
+                nnet.load_checkpoint(
                     folder=self.args.checkpoint, filename='temp.pth.tar')
             else:
                 log.info('ACCEPTING NEW MODEL')
-                self.nnet.save_checkpoint(
+                nnet.save_checkpoint(
                     folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
-                self.nnet.save_checkpoint(
+                nnet.save_checkpoint(
                     folder=self.args.checkpoint, filename='best.pth.tar')
 
     def getCheckpointFile(self, iteration):
