@@ -78,6 +78,7 @@ class MCTS():
         if(depth >= 500):
             # 깊이가 너무 깊어지면 무승부 처리
             self.Es[s] = -2
+            return 0
 
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(board, 1)
