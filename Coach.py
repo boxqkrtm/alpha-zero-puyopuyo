@@ -28,7 +28,7 @@ args = dotdict({
     'updateThreshold': 0.6,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 10,
     'cpuct': 3,
