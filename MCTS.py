@@ -76,8 +76,8 @@ class MCTS():
         s = self.game.stringRepresentation(board)
 
         if(depth >= 500):
-            # 깊이가 너무 깊어지면 무승부 처리
-            self.Es[s] = -2
+            # 깊이가 너무 깊어지면 진행중 처리
+            self.Es[s] = 0
             return 0
 
         if s not in self.Es:

@@ -30,17 +30,17 @@ args = dotdict({
     'maxlenOfQueue': 200000,
     'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
-    'arenaCompare': 4,
+    'arenaCompare': 10,
     'cpuct': 3,
 
     'checkpoint': './temp/',
-    'load_model': False,
+    'load_model': True,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 })
 
 proreturn = {}
-threads = 5
+threads = 4
 nnet = nn(Game())
 
 def executeEpisode(pn, args, returndict):
