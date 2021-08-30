@@ -1,3 +1,5 @@
+import pyximport; pyximport.install()
+
 import logging
 
 import coloredlogs

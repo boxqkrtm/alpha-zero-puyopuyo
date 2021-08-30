@@ -1,3 +1,8 @@
+# cython: language_level=3
+# cython: linetrace=True
+# cython: profile=True
+# cython: binding=True
+
 import logging
 import math
 from puyo.Duel import *

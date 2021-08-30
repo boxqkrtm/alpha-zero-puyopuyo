@@ -1,3 +1,4 @@
+# cython: language_level=3
 import logging
 import os
 import sys
@@ -9,6 +10,7 @@ from puyo.PuyoGame import PuyoGame as Game
 from multiprocessing import Process, Queue, Manager
 from puyo.PuyoGame import PuyoGame as Game
 from puyo.pytorch.NNet import NNetWrapper as nn
+import gc
 
 import numpy as np
 from tqdm import tqdm
@@ -28,7 +30,7 @@ args = dotdict({
     'updateThreshold': 0.6,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 10,
     'cpuct': 3,
