@@ -24,21 +24,21 @@ log = logging.getLogger(__name__)
 args = dotdict({
     'numIters': 1000,  # 1000
     # Number of complete self-play games to simulate during a new iteration.
-    'numEps': 100,  # 100
-    'tempThreshold': 40,        #
+    'numEps': 1000,  # 100
+    'tempThreshold': 15,        #
     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
-    'updateThreshold': 0.6,
+    'updateThreshold': 0.55,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 7,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 50,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
-    'arenaCompare': 10,
+    'arenaCompare': 100,
     'cpuct': 3,
 
     'checkpoint': './temp/',
-    'load_model': True,
+    'load_model': False,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
-    'numItersForTrainExamplesHistory': 5,
+    'numItersForTrainExamplesHistory': 20,
 })
 
 proreturn = {}
@@ -81,12 +81,14 @@ def executeEpisode(pn, args, returndict):
         action = np.random.choice(len(pi), p=pi)
         board, curPlayer = game.getNextState(
             board, curPlayer, action)
-        board.print()
-        print(pi)
+        #board.print()
+        #print(pi)
 
         r = game.getGameEnded(board, curPlayer)
 
         if r != 0:
+            del mcts
+            del board
             returndict[pn] = [(x[0], x[2], r * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
             return
 
@@ -151,7 +153,10 @@ class Coach():
 
                     for a in returndict.values():
                         iterationTrainExamples += a
-
+                    del pro
+                    del manager
+                    del returndict
+                #gc.collect()
                 # save the iteration examples to the history
                 self.trainExamplesHistory.append(iterationTrainExamples)
 

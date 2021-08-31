@@ -12,16 +12,14 @@ from tqdm import tqdm
 
 sys.path.append('../../')
 
-
 args = dotdict({
-    'lr': 0.01,
+    'lr': 0.00008,
     'dropout': 0.1,
-    'epochs': 5,
-    'batch_size': 512,
+    'epochs': 1200,
+    'batch_size': 128,
     'cuda': True,  # torch.cuda.is_available()
     'num_channels': 64,
 })
-
 
 class NNetWrapper(NeuralNet):
     def __init__(self, game):

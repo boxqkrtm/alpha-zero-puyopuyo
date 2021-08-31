@@ -8,6 +8,7 @@ import math
 from puyo.Duel import *
 
 import numpy as np
+import gc
 
 EPS = 1e-8
 
@@ -41,7 +42,8 @@ class MCTS():
                    proportional to Nsa[(s,a)]**(1./temp)
         """
         for i in range(self.args.numMCTSSims):
-            self.search(Duel(duel=board), depth = 0)
+            bo = Duel(duel=board)
+            self.search(bo, depth = 0)
 
         s = self.game.stringRepresentation(board)
         counts = [self.Nsa[(s, a)] if (
@@ -94,8 +96,10 @@ class MCTS():
 
         if s not in self.Ps:
             # leaf node
-            self.Ps[s], v = self.nnet.predict(board.GrayScaleArray())
-            valids = self.game.getValidMoves(board, 1)
+            gt = self.game.getTurn(board)
+            cb = self.game.getCanonicalFormBoard(board, gt)
+            self.Ps[s], v = self.nnet.predict(cb.GrayScaleArray())
+            valids = self.game.getValidMoves(cb, 1)
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
@@ -135,9 +139,8 @@ class MCTS():
 
         a = best_act
         next_board, next_player = self.game.getNextState(board, 1, a)
-        next_board = self.game.getCanonicalFormBoard(next_board, next_player)
 
-        v = self.search(Duel(duel=next_board), depth+1)
+        v = self.search(next_board, depth+1)
 
         if (s, a) in self.Qsa:
             self.Qsa[(s, a)] = (self.Nsa[(s, a)] *

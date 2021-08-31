@@ -67,6 +67,19 @@ class PuyoGame(Game):
         else:
             return (b, 1)  # game over
 
+    def getTurn(self, board):
+        state = board.status()
+        # 플레이어 턴 판단
+        if(state == 0):
+            return (board, 1)
+        elif(state == 1):
+            return (board, -1)
+        elif(state == 2):  # 둘다 필요할땐 1p로 설정
+            return (board, 1)
+        else:
+            return (board, 1)  # game over
+
+
     def getValidMoves(self, board, player):
         if(player == 1):
             return board.GetValidMovesPlayerMask(0)
