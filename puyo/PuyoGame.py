@@ -79,7 +79,7 @@ class PuyoGame(Game):
         isflip = False
         board = Duel(duel=boarda)
         if(player == -1):
-            self.getCanonicalFormBoard(board, -1)
+            board = self.getCanonicalFormBoard(board, -1)
         state = board.status()
         if(state == 3):
             return 1
