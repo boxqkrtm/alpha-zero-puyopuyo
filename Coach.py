@@ -24,13 +24,13 @@ log = logging.getLogger(__name__)
 args = dotdict({
     'numIters': 1000,  # 1000
     # Number of complete self-play games to simulate during a new iteration.
-    'numEps': 1000,  # 100
+    'numEps': 100,  # 100
     'tempThreshold': 15,        #
     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
     'updateThreshold': 0.55,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 50,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 100,
     'cpuct': 3,

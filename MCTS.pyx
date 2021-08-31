@@ -138,7 +138,7 @@ class MCTS():
 
         next_board, next_player = self.game.getNextState(cb, 1, a)
         cb = self.game.getCanonicalFormBoard(next_board, next_player)
-        v = self.search(next_board, cb, depth+1)
+        v = self.search(cb, cb, depth+1)
 
         if (s, a) in self.Qsa:
             self.Qsa[(s, a)] = (self.Nsa[(s, a)] *
