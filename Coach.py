@@ -24,21 +24,21 @@ log = logging.getLogger(__name__)
 args = dotdict({
     'numIters': 1000,  # 1000
     # Number of complete self-play games to simulate during a new iteration.
-    'numEps': 100,  # 100
+    'numEps': 20,  # 100
     'tempThreshold': 15,        #
     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
     'updateThreshold': 0.6,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 10,
     'cpuct': 3,
 
     'checkpoint': './temp/',
-    'load_model': True,
+    'load_model': False,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
-    'numItersForTrainExamplesHistory': 20,
+    'numItersForTrainExamplesHistory': 5,
 })
 
 proreturn = {}
@@ -80,12 +80,10 @@ def executeEpisode(pn, args, returndict):
     while True:
         episodeStep += 1
         temp = int(episodeStep < args.tempThreshold)
-
-        pi = mcts.getActionProb(
-            game.getCanonicalFormBoard(board, curPlayer), temp=temp)
+        cboard = game.getCanonicalFormBoard(board,curPlayer)
+        pi = mcts.getActionProb(cboard, temp=temp)
         #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
-        trainExamples.append(
-            [board.GrayScaleArray(board.getGameInfo(0 if curPlayer == 1 else 1)), curPlayer, pi, None])
+        trainExamples.append([cboard.GrayScaleArray(board), curPlayer, pi, None])
 
         action = np.random.choice(len(pi), p=pi)
         board, curPlayer = game.getNextState(
@@ -180,7 +178,7 @@ class Coach():
             log.info('PITTING AGAINST PREVIOUS VERSION')
             arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
                           lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
-            pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
+            pwins, nwins, draws = arena.playGames(self.args.arenaCompare, True)
 
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' %
                      (nwins, pwins, draws))
