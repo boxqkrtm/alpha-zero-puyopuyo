@@ -24,19 +24,19 @@ log = logging.getLogger(__name__)
 args = dotdict({
     'numIters': 1000,  # 1000
     # Number of complete self-play games to simulate during a new iteration.
-    'numEps': 1000,  # 100
-    'tempThreshold': 15,        #
+    'numEps': 100,  # 100
+    'tempThreshold': 40,        #
     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
     'updateThreshold': 0.6,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 7,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 10,
     'cpuct': 3,
 
     'checkpoint': './temp/',
-    'load_model': False,
+    'load_model': True,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 5,
 })
@@ -65,13 +65,6 @@ def executeEpisode(pn, args, returndict):
     game = Game()
     nnet = nnet
     mcts = MCTS(Game(), nnet, args)
-    if args.load_model:
-        #log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
-        nnet.load_checkpoint(
-            args.load_folder_file[0], args.load_folder_file[1])
-    else:
-        pass
-        #log.warning('Not loading a checkpoint!')
     trainExamples = []
     board = game.getInitBoard()
     curPlayer = 1
@@ -117,7 +110,7 @@ class Coach():
 
 
     def learn(self):
-        global proreturn, nnet, threads, mcts
+        global proreturn, nnet, threads, mcts, nnet
         """
         Performs numIters iterations with numEps episodes of self-play in each
         iteration. After every iteration, it retrains neural network with
@@ -133,6 +126,15 @@ class Coach():
             if not self.skipFirstSelfPlay or i > 1:
                 iterationTrainExamples = deque(
                     [], maxlen=self.args.maxlenOfQueue)
+
+                if self.args.load_model:
+                    #log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
+                    nnet.load_checkpoint(
+                        self.args.load_folder_file[0], self.args.load_folder_file[1])
+                else:
+                    pass
+                    #log.warning('Not loading a checkpoint!')
+                    
 
                 for _ in tqdm(range(0,self.args.numEps, threads), desc="Self Play"):
                     # reset search tree
