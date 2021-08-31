@@ -136,7 +136,7 @@ class MCTS():
 
         a = best_act
 
-        next_board, next_player = self.game.getNextState(board, 1, a)
+        next_board, next_player = self.game.getNextState(cb, 1, a)
         cb = self.game.getCanonicalFormBoard(board, next_player)
         v = self.search(next_board, cb, depth+1)
 

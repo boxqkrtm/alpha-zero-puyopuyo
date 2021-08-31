@@ -32,10 +32,10 @@ class PuyoGame(Game):
         if(state == 2):
             # 놓기판단
             if(player == 1):
-                #print("set 1p ", action, b.p2)
+                print("set 1p ", action, b.p2)
                 b.p1 = action
             else:
-                #print("set 2p ", action, b.p1)
+                print("set 2p ", action, b.p1)
                 b.p2 = action
 
             # 둘다 판단을 완료해야 진행 아니면 턴만 넘기고 진행안함
@@ -123,7 +123,7 @@ class PuyoGame(Game):
             boardString: a quick conversion of board to a string format.
                          Required by MCTS for hashing.
         """
-        return str(board.GrayScaleArray())
+        return str(board.GrayScaleArray())+str(board.p1)+str(board.p2)
 
     def display(self):
         self.d.print()

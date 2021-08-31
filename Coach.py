@@ -42,7 +42,7 @@ args = dotdict({
 })
 
 proreturn = {}
-threads = 4
+threads = 1
 nnet = nn(Game())
 
 def executeEpisode(pn, args, returndict):
