@@ -79,13 +79,13 @@ class MCTS():
         Returns:
             v: the negative of the value of the current canonicalBoard
         """
+        
         s = self.game.stringRepresentation(board)
 
         if(depth >= 500):
             # 깊이가 너무 깊어지면 진행중 처리
             self.Es[s] = 0
             return 0
-
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(board, 1)
 
@@ -137,7 +137,7 @@ class MCTS():
         a = best_act
 
         next_board, next_player = self.game.getNextState(cb, 1, a)
-        cb = self.game.getCanonicalFormBoard(board, next_player)
+        cb = self.game.getCanonicalFormBoard(next_board, next_player)
         v = self.search(next_board, cb, depth+1)
 
         if (s, a) in self.Qsa:

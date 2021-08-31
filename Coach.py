@@ -42,7 +42,7 @@ args = dotdict({
 })
 
 proreturn = {}
-threads = 1
+threads = 4
 nnet = nn(Game())
 
 def executeEpisode(pn, args, returndict):
@@ -85,7 +85,6 @@ def executeEpisode(pn, args, returndict):
         #print(pi)
 
         r = game.getGameEnded(board, curPlayer)
-
         if r != 0:
             del mcts
             del board

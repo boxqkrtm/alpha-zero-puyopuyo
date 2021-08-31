@@ -10,6 +10,7 @@ class PuyoGame(Game):
 
     def __init__(self):
         # 플레이어의 Action값 저장
+        self.turn = 0
         pass
 
     def getInitBoard(self):
@@ -25,6 +26,7 @@ class PuyoGame(Game):
         return 22
 
     def getNextState(self, board, player, action):
+        self.turn += 1
         b = Duel(duel=board)
         #b.input(action, -1)
         state = b.status()
@@ -87,10 +89,12 @@ class PuyoGame(Game):
     def getGameEnded(self, boarda, player):
         # return 0 if not ended, 1 if player 1 won, -1 if player 1 lost
         # player = 1
-        isflip = False
         board = Duel(duel=boarda)
-        if(player == -1):
+        if(board.isPlayer == player):
+            pass
+        else:
             board = self.getCanonicalFormBoard(board, -1)
+
         state = board.status()
         if(state == 3):
             return 1
