@@ -66,18 +66,46 @@ class PuyoGame(Game):
             return (b, 1)
         else:
             return (b, 1)  # game over
+    def getNextStateRaw(self, b, player, action):
+        self.turn += 1
+        #b.input(action, -1)
+        state = b.status()
+        # 1p 2p 둘다 판단
+        if(state == 2):
+            # 놓기판단
+            if(player == 1):
+                b.p1 = action
+            else:
+                b.p2 = action
 
-    def getTurn(self, board):
-        state = board.status()
+            # 둘다 판단을 완료해야 진행 아니면 턴만 넘기고 진행안함
+            if(b.p1 != -1 and b.p2 != -1):
+                b.input(b.p1, b.p2)
+                b.run()
+                b.p1, b.p2 = -1, -1
+            else:
+                return (b, -player)
+
+        elif(state == 0 and player == 1):
+            # 1p 놓기
+            b.input(action, 0)
+            b.run()
+        elif(state == 1 and player == -1):
+            # 2p 놓기
+            b.input(0, action)
+            b.run()
+
+        # state 판단하여 board 돌려줌
+        state = b.status()
         # 플레이어 턴 판단
         if(state == 0):
-            return (board, 1)
+            return (b, 1)
         elif(state == 1):
-            return (board, -1)
+            return (b, -1)
         elif(state == 2):  # 둘다 필요할땐 1p로 설정
-            return (board, 1)
+            return (b, 1)
         else:
-            return (board, 1)  # game over
+            return (b, 1)  # game over
 
 
     def getValidMoves(self, board, player):
@@ -96,6 +124,7 @@ class PuyoGame(Game):
             board = self.getCanonicalFormBoard(board, -1)
 
         state = board.status()
+        del board
         if(state == 3):
             return 1
         elif(state == 4):
@@ -116,6 +145,17 @@ class PuyoGame(Game):
             b.swap()
             return b
 
+
+    def getCanonicalFormBoardRaw(self, b, player):
+        # return state if player==1, else return -state if player==-1
+        if(1 == player):
+            return b
+        else:
+            b.swap()
+            return b
+
+
+
     def stringRepresentation(self, board):
         """
         Input:
@@ -125,7 +165,7 @@ class PuyoGame(Game):
             boardString: a quick conversion of board to a string format.
                          Required by MCTS for hashing.
         """
-        return str(board.GrayScaleArray())+str(board.p1)+str(board.p2)
+        return str(board.GrayScaleArray())+str(board.isPlayer)+" "+str(board.p1)+" "+str(board.p2)
 
     def display(self):
         self.d.print()
