@@ -30,9 +30,9 @@ args = dotdict({
     'updateThreshold': 0.55,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
-    'arenaCompare': 20,
+    'arenaCompare': 10,
     'cpuct': 3,
 
     'checkpoint': './temp/',
@@ -76,7 +76,7 @@ def executeEpisode(pn, args, returndict):
         cboard = game.getCanonicalFormBoard(board,curPlayer)
         pi = mcts.getActionProb(cboard, temp=temp)
         #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
-        trainExamples.append([cboard.GrayScaleArray(cboard), 1, pi, None])
+        trainExamples.append([board.GrayScaleArray(board), curPlayer, pi, None])
 
         action = np.random.choice(len(pi), p=pi)
         board, curPlayer = game.getNextStateRaw(
