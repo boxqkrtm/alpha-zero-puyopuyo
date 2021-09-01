@@ -19,13 +19,17 @@ class GameInfo(object):
         dueldll.GameInfoDel.restype = c_void_p
         dueldll.GameInfoDel(self.obj)
 
+dcnt = 0
 
 class Duel(object):
 
     def __init__(self, seed=None, duel=None, obj=None):
+        global dcnt
+        #print(dcnt)
         self.p1 = -1
         self.p2 = -1
         self.isPlayer = 1
+        dcnt += 1
         '''
         Duel 오브젝트를 입력시 복제, 시드입력시 새 Duel객체를 생성합니다
         '''
@@ -308,9 +312,12 @@ class Duel(object):
             return 0
 
     def __del__(self):
+        global dcnt
+        dcnt -= 1
         dueldll.DuelDel.argtypes = [c_void_p]
         dueldll.DuelDel.restype = c_void_p
         dueldll.DuelDel(self.obj)
+        del self.obj
 
     def GrayScaleArray(self, gameInfo=None):
         if(gameInfo is None):
