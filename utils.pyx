@@ -1,3 +1,4 @@
+# cython: language_level=3
 class AverageMeter(object):
     """From https://github.com/pytorch/examples/blob/master/imagenet/main.py"""
 

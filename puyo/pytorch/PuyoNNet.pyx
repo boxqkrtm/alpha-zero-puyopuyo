@@ -1,3 +1,4 @@
+# cython: language_level=3
 from torch.autograd import Variable
 from torchvision import datasets, transforms
 import torch.optim as optim

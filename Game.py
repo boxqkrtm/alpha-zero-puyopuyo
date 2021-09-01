@@ -1,3 +1,4 @@
+# cython: language_level=3
 class Game():
     """
     This class specifies the base Game class. To define your own game, subclass

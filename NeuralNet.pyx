@@ -1,3 +1,4 @@
+# cython: language_level=3
 class NeuralNet():
     """
     This class specifies the base NeuralNet class. To define your own neural

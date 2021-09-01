@@ -1,3 +1,4 @@
+# cython: language_level=3
 from .PuyoNNet import PuyoNNet as onnet
 import torch.optim as optim
 import torch
@@ -13,9 +14,9 @@ from tqdm import tqdm
 sys.path.append('../../')
 
 args = dotdict({
-    'lr': 0.00008,
+    'lr': 0.001,
     'dropout': 0.1,
-    'epochs': 10,
+    'epochs': 20,
     'batch_size': 512,
     'cuda': True,  # torch.cuda.is_available()
     'num_channels': 64,
@@ -29,6 +30,8 @@ class NNetWrapper(NeuralNet):
 
         if args.cuda:
             self.nnet.cuda()
+            #torch.cuda.set_per_process_memory_fraction(0.1)
+            #torch.cuda.empty_cache()
 
     def train(self, examples):
         """

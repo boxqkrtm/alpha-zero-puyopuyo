@@ -1,3 +1,4 @@
+# cython: language_level=3
 from __future__ import print_function
 import numpy as np
 from Game import Game
