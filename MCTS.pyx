@@ -92,7 +92,7 @@ class MCTS():
 
         if self.Es[s] != 0:
             # terminal node
-            return self.Es[s]
+            return -self.Es[s]
 
         if s not in self.Ps:
             # leaf node
@@ -150,4 +150,4 @@ class MCTS():
             self.Nsa[(s, a)] = 1
 
         self.Ns[s] += 1
-        return v
+        return -v

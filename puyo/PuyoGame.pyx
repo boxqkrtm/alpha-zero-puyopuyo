@@ -115,17 +115,11 @@ class PuyoGame(Game):
         else:
             return board.GetValidMovesPlayerMask(1)
 
-    def getGameEnded(self, boarda, player):
+    def getGameEnded(self, board, player):
         # return 0 if not ended, 1 if player 1 won, -1 if player 1 lost
         # player = 1
-        board = Duel(duel=boarda)
-        if(board.isPlayer == player):
-            pass
-        else:
-            board = self.getCanonicalFormBoard(board, -1)
 
         state = board.status()
-        del board
         if(state == 3):
             return 1
         elif(state == 4):
