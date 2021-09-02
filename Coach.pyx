@@ -30,7 +30,7 @@ args = dotdict({
     'updateThreshold': 0.55,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 5,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 10,
     'cpuct': 3,
@@ -88,7 +88,7 @@ def executeEpisode(pn, args, returndict):
         if r != 0:
             del mcts
             del board
-            returndict[pn] = [(x[0], x[2], r*curPlayer) for x in trainExamples]
+            returndict[pn] = [(x[0], x[2], r if x[1]==1 else -r) for x in trainExamples]
             return
 
 class Coach():

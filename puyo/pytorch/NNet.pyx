@@ -16,10 +16,10 @@ sys.path.append('../../')
 args = dotdict({
     'lr': 0.001,
     'dropout': 0.1,
-    'epochs': 20,
+    'epochs': 30,
     'batch_size': 512,
     'cuda': True,  # torch.cuda.is_available()
-    'num_channels': 64,
+    'num_channels': 512,
 })
 
 class NNetWrapper(NeuralNet):
