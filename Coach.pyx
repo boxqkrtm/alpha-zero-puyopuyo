@@ -30,15 +30,15 @@ args = dotdict({
     'updateThreshold': 0.55,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 2,          # Number of games moves for MCTS to simulate.
+    'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 10,
     'cpuct': 3,
 
     'checkpoint': './temp/',
-    'load_model': True,
+    'load_model': False,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
-    'numItersForTrainExamplesHistory': 20,
+    'numItersForTrainExamplesHistory': 10,
 })
 
 proreturn = {}
@@ -76,7 +76,7 @@ def executeEpisode(pn, args, returndict):
         cboard = game.getCanonicalFormBoard(board,curPlayer)
         pi = mcts.getActionProb(cboard, temp=temp)
         #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
-        trainExamples.append([board.GrayScaleArray(board), curPlayer, pi, None])
+        trainExamples.append([board.GrayScaleArray(cboard), curPlayer, pi, None])
 
         action = np.random.choice(len(pi), p=pi)
         board, curPlayer = game.getNextStateRaw(
@@ -88,7 +88,7 @@ def executeEpisode(pn, args, returndict):
         if r != 0:
             del mcts
             del board
-            returndict[pn] = [(x[0], x[2], r * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
+            returndict[pn] = [(x[0], x[2], r*curPlayer) for x in trainExamples]
             return
 
 class Coach():
