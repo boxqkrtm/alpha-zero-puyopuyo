@@ -121,9 +121,9 @@ class PuyoGame(Game):
 
         state = board.status()
         if(state == 3):
-            return 1
+            return 1*player
         elif(state == 4):
-            return -1
+            return -1*player
         elif(state == 5):
             return -2  # draw
         else:

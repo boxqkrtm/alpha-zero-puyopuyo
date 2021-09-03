@@ -11,7 +11,7 @@ from multiprocessing import Process, Queue, Manager
 from puyo.PuyoGame import PuyoGame as Game
 from puyo.pytorch.NNet import NNetWrapper as nn
 import gc
-
+import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 from utils import *
@@ -76,21 +76,19 @@ def executeEpisode(pn, args, returndict):
         cboard = game.getCanonicalFormBoard(board,curPlayer)
         pi = mcts.getActionProb(cboard, temp=temp)
         #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
-        trainExamples.append([cboard.GrayScaleArray(cboard), curPlayer, pi, None])
-
+        trainExamples.append([cboard.GrayScaleArray(), curPlayer, pi, None])
         action = np.random.choice(len(pi), p=pi)
         board, curPlayer = game.getNextStateRaw(
             board, curPlayer, action)
-        board.print()
-        print(pi)
+        #board.print()
+        #print(pi)
         del cboard
         r = game.getGameEnded(board, curPlayer)
         if r != 0:
             del mcts
             del board
-            returndict[pn] = [(x[0], x[2], r if x[1]==1 else -r) for x in trainExamples]
+            returndict[pn] = [(x[0], x[2], r * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
             return
-
 class Coach():
     """
     This class executes the self-play + learning. It uses the functions defined
