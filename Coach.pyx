@@ -36,11 +36,11 @@ args = dotdict({
     'cpuct': 3,
 
     'checkpoint': './temp/',
-    'load_model': False,
+    'load_model': True,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 10,
 })
-
+nowIter=17
 proreturn = {}
 threads = 4
 nnet = nn(Game())
@@ -109,7 +109,7 @@ class Coach():
 
 
     def learn(self):
-        global proreturn, nnet, threads, mcts, nnet
+        global proreturn, nnet, threads, mcts, nnet, nowIter
         """
         Performs numIters iterations with numEps episodes of self-play in each
         iteration. After every iteration, it retrains neural network with
@@ -118,7 +118,7 @@ class Coach():
         only if it wins >= updateThreshold fraction of games.
         """
 
-        for i in range(1, self.args.numIters + 1):
+        for i in range(nowIter, self.args.numIters + 1):
             # bookkeeping
             log.info(f'Starting Iter #{i} ...')
             # examples of the iteration
