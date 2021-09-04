@@ -40,7 +40,7 @@ args = dotdict({
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 10,
 })
-nowIter=17
+nowIter=22
 proreturn = {}
 threads = 4
 nnet = nn(Game())

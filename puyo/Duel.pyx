@@ -7,7 +7,12 @@ import random
 
 EPS = 1e-8
 
-dueldll = cdll.LoadLibrary('./puyo/tuyotuyo')
+dueldll = 0
+try:
+  dueldll = cdll.LoadLibrary('./puyo/tuyotuyo')
+except:
+  dueldll = cdll.LoadLibrary('/usr/lib/tuyotuyo.so')
+  
 
 
 class GameInfo(object):
