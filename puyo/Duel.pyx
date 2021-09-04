@@ -328,7 +328,9 @@ class Duel(object):
     def GrayScaleArray(self, gameInfo=None):
         if(gameInfo is None):
             gameInfo = self.getGameInfo(0)
-        gameInfo = gameInfo.obj
+            gameInfo = gameInfo.obj
+        else:
+            gameInfo = gameInfo.obj
         dueldll.GameInfoToGrayScale.argtypes = [c_void_p]
         dueldll.GameInfoToGrayScale.restype = POINTER(c_double)
         vals = dueldll.GameInfoToGrayScale(gameInfo)
