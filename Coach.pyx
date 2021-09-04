@@ -18,6 +18,8 @@ from utils import *
 
 from Arena import Arena
 from MCTS import MCTS
+import torch
+torch.multiprocessing.set_start_method('spawn')
 
 log = logging.getLogger(__name__)
 
@@ -184,7 +186,7 @@ class Coach():
             log.info('PITTING AGAINST PREVIOUS VERSION')
             arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
                           lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
-            pwins, nwins, draws = arena.playGames(self.args.arenaCompare, True)
+            pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
 
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' %
                      (nwins, pwins, draws))
