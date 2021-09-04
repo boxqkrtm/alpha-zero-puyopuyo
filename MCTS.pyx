@@ -86,6 +86,10 @@ class MCTS():
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(board, 1)
 
+        if depth >= 500:
+            self.Es[s] = 0
+            return 0
+
         if self.Es[s] != 0:
             # terminal node
             return -self.Es[s]
