@@ -18,8 +18,6 @@ from utils import *
 
 from Arena import Arena
 from MCTS import MCTS
-import torch
-torch.multiprocessing.set_start_method('spawn')
 
 log = logging.getLogger(__name__)
 
