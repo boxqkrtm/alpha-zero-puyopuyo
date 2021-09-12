@@ -96,7 +96,7 @@ class MCTS():
 
         if s not in self.Ps:
             # leaf node
-            self.Ps[s], v = self.nnet.predict(board.GrayScaleArray())
+            self.Ps[s], v = self.nnet.predict(board.GrayScaleArray(board.getGameInfo(0)))
             valids = self.game.getValidMoves(board, 1)
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
@@ -110,6 +110,7 @@ class MCTS():
                 log.error("All valid moves were masked, doing a workaround.")
                 board.print()
                 print(valids)
+                print(self.Ps[s])
                 self.Ps[s] = self.Ps[s] + valids
                 self.Ps[s] /= np.sum(self.Ps[s])
 

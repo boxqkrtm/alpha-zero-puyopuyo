@@ -4,6 +4,7 @@
 from ctypes import *
 import numpy as np
 import random
+import matplotlib.pyplot as plt
 
 EPS = 1e-8
 
@@ -325,21 +326,19 @@ class Duel(object):
         dueldll.DuelDel(self.obj)
         del self.obj
 
-    def GrayScaleArray(self, gameInfo=None):
-        if(gameInfo is None):
-            gameInfo = self.getGameInfo(0)
-            gameInfo = gameInfo.obj
-        else:
-            gameInfo = gameInfo.obj
+    def GrayScaleArray(self, gameInfo):
+        gameInfo = gameInfo.obj
         dueldll.GameInfoToGrayScale.argtypes = [c_void_p]
-        dueldll.GameInfoToGrayScale.restype = POINTER(c_double)
+        dueldll.GameInfoToGrayScale.restype = POINTER(c_float)
         vals = dueldll.GameInfoToGrayScale(gameInfo)
         result = [vals[i] for i in range(14*14)]
         result = np.reshape(result, (14, 14, 1))
         self.GrayScaleDel(vals)
+        #plt.imshow(result)
+        #plt.show()
         return result
 
     def GrayScaleDel(self, obj):
-        dueldll.GrayScaleDel.argtypes = [POINTER(c_double)]
+        dueldll.GrayScaleDel.argtypes = [POINTER(c_float)]
         dueldll.GrayScaleDel.restype = c_void_p
         dueldll.GrayScaleDel(obj)

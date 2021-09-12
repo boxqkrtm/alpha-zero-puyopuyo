@@ -6,7 +6,6 @@ from collections import deque
 from pickle import Pickler, Unpickler
 from random import shuffle
 from puyo.Duel import *
-from puyo.PuyoGame import PuyoGame as Game
 from multiprocessing import Process, Queue, Manager
 from puyo.PuyoGame import PuyoGame as Game
 from puyo.pytorch.NNet import NNetWrapper as nn
@@ -76,7 +75,7 @@ def executeEpisode(pn, args, returndict):
         cboard = game.getCanonicalFormBoard(board,curPlayer)
         pi = mcts.getActionProb(cboard, temp=temp)
         #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
-        trainExamples.append([cboard.GrayScaleArray(), curPlayer, pi, None])
+        trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(0)), curPlayer, pi, None])
         action = np.random.choice(len(pi), p=pi)
         board, curPlayer = game.getNextStateRaw(
             board, curPlayer, action)
