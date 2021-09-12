@@ -25,22 +25,22 @@ args = dotdict({
     'numIters': 1000,  # 1000
     # Number of complete self-play games to simulate during a new iteration.
     'numEps': 100,  # 100
-    'tempThreshold': 6*13,        #
+    'tempThreshold': 15,        #
     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
     'updateThreshold': 0.55,
     # Number of game examples to train the neural networks.
     'maxlenOfQueue': 200000,
     'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
-    'arenaCompare': 10,
-    'cpuct': 3,
+    'arenaCompare': 40,
+    'cpuct': 1,
 
     'checkpoint': './temp/',
     'load_model': True,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
-    'numItersForTrainExamplesHistory': 10,
+    'numItersForTrainExamplesHistory': 20,
 })
-nowIter=22
+nowIter=120
 proreturn = {}
 threads = 4
 nnet = nn(Game())
