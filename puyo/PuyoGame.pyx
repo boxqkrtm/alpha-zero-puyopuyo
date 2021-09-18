@@ -162,5 +162,14 @@ class PuyoGame(Game):
         """
         return str(board.GrayScaleArray(board.getGameInfo(0)))+str(board.isPlayer)+" "+str(board.p1)+" "+str(board.p2)
 
+    def getFieldOjama(self, board, player):
+        ojama = 0
+        p = 0 if player == 1 else 1
+        for i in board.getMyField(board.getGameInfo(p)):
+            for j in i:
+                if(j == 6):
+                    ojama+=1
+        return ojama/13*6
+        
     def display(self):
         self.d.print()
