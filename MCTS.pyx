@@ -33,6 +33,16 @@ class MCTS():
         self.Vs = {}  # stores game.getValidMoves for board s
 
     def getActionProb(self, board, temp=1):
+
+        self.Qsa = {}  # stores Q values for s,a (as defined in the paper)
+        self.Nsa = {}  # stores #times edge s,a was visited
+        self.Ns = {}  # stores #times board s was visited
+        self.Ps = {}  # stores initial policy (returned by neural net)
+
+        self.Es = {}  # stores game.getGameEnded ended for board s
+        self.Vs = {}  # stores game.getValidMoves for board s
+
+
         """
         This function performs numMCTSSims simulations of MCTS starting from
         canonicalBoard.

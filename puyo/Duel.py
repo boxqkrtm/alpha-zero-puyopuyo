@@ -15,13 +15,19 @@ except:
   dueldll = cdll.LoadLibrary('/usr/lib/tuyotuyo.so')
   
 
+gcnt = 0
 
 class GameInfo(object):
 
     def __init__(self, obj):
+        global gcnt
         self.obj = obj
+        gcnt += 1
+        #print(gcnt)
 
     def __del__(self):
+        global gcnt
+        gcnt -= 1
         dueldll.GameInfoDel.argtypes = [c_void_p]
         dueldll.GameInfoDel.restype = c_void_p
         dueldll.GameInfoDel(self.obj)
