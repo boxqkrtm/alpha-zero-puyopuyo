@@ -59,7 +59,9 @@ class MCTS():
             d = Duel(duel=board)
             self.search(d, depth = 0)
         
-        s = self.game.stringRepresentation(board)
+        gi = board.getGameInfo(0)
+        s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))
+        #self.game.stringRepresentation(board)
         counts = [self.Nsa[(s, a)] if (
             s, a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
@@ -94,8 +96,9 @@ class MCTS():
         Returns:
             v: the negative of the value of the current canonicalBoard
         """
-        
-        s = self.game.stringRepresentation(board)
+        gi = board.getGameInfo(0)
+        s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))
+        #self.game.stringRepresentation(board)
 
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(board, 1)

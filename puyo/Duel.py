@@ -285,16 +285,15 @@ class Duel(object):
         return dueldll.GameInfoGetMyEventFrame(gameInfo)
 
     def GameInfoGetOppEventFrame(self, gameInfo):
+        gameInfo = gameInfo.obj
         dueldll.GameInfoGetOppEventFrame.argtypes = [c_void_p]
         dueldll.GameInfoGetOppEventFrame.restype = c_int
         return dueldll.GameInfoGetOppEventFrame(gameInfo)
 
     def GetFieldInfo(self, gameInfo):
-        gameInfo = gameInfo.obj
         return [self.getMyField(gameInfo), self.getOppField(gameInfo)]
 
     def GetOuterFieldInfo(self, gameInfo):
-        gameInfo = gameInfo.obj
         return [self.GameInfoGetMyNext(gameInfo), self.GameInfoGetOppNext(gameInfo), self.GameInfoGetMyOjama(gameInfo), self.GameInfoGetOppOjama(gameInfo), self.GameInfoGetMyAllClear(gameInfo), self.GameInfoGetOppAllClear(gameInfo), self.GameInfoGetMyEventFrame(gameInfo), self.GameInfoGetOppEventFrame(gameInfo)]
 
     def GetValidMovesPlayer(self, player):
