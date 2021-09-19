@@ -35,11 +35,11 @@ args = dotdict({
     'cpuct': 1,
 
     'checkpoint': './temp/',
-    'load_model': False,
+    'load_model': True,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 })
-nowIter=1
+nowIter=12
 proreturn = {}
 threads = 4
 nnet = nn(Game())
