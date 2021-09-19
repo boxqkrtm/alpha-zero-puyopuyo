@@ -8,6 +8,7 @@ import math
 from puyo.Duel import *
 
 import numpy as np
+import time
 import gc
 
 EPS = 1e-8
@@ -51,10 +52,13 @@ class MCTS():
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
         """
+        
+        
+        
         for i in range(self.args.numMCTSSims):
             d = Duel(duel=board)
             self.search(d, depth = 0)
-
+        
         s = self.game.stringRepresentation(board)
         counts = [self.Nsa[(s, a)] if (
             s, a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
@@ -96,16 +100,13 @@ class MCTS():
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(board, 1)
 
-        if depth >= 500:
-            self.Es[s] = 0
-            return 0
-
         if self.Es[s] != 0:
             # terminal node
             return -self.Es[s]
 
         if s not in self.Ps:
             # leaf node
+            
             self.Ps[s], v = self.nnet.predict(board.GrayScaleArray(board.getGameInfo(0)))
             valids = self.game.getValidMoves(board, 1)
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
@@ -126,6 +127,7 @@ class MCTS():
 
             self.Vs[s] = valids
             self.Ns[s] = 0
+            
             return -v
 
         valids = self.Vs[s]
@@ -147,8 +149,10 @@ class MCTS():
                     best_act = a
 
         a = best_act
+        
         next_board, next_player = self.game.getNextStateRaw(board, 1, a)
         cb = self.game.getCanonicalFormBoardRaw(next_board, next_player)
+        
         v = self.search(cb, depth+1)
 
         if (s, a) in self.Qsa:

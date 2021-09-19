@@ -35,11 +35,11 @@ args = dotdict({
     'cpuct': 1,
 
     'checkpoint': './temp/',
-    'load_model': True,
+    'load_model': False,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 })
-nowIter=120
+nowIter=1
 proreturn = {}
 threads = 4
 nnet = nn(Game())
@@ -73,6 +73,7 @@ def executeEpisode(pn, args, returndict):
         episodeStep += 1
         temp = int(episodeStep < args.tempThreshold)
         cboard = game.getCanonicalFormBoard(board,curPlayer)
+
         pi = mcts.getActionProb(cboard, temp=temp)
         #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
         trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(0)), curPlayer, pi, None])

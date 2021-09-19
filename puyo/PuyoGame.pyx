@@ -160,7 +160,7 @@ class PuyoGame(Game):
             boardString: a quick conversion of board to a string format.
                          Required by MCTS for hashing.
         """
-        return str(board.GrayScaleArray(board.getGameInfo(0)))+str(board.isPlayer)+" "+str(board.p1)+" "+str(board.p2)
+        return str(board.GrayScaleArray(board.getGameInfo(0)))
 
     def getFieldOjama(self, board, player):
         ojama = 0
