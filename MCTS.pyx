@@ -57,6 +57,7 @@ class MCTS():
         
         for i in range(self.args.numMCTSSims):
             d = Duel(duel=board)
+            d.randUnknownData()
             self.search(d, depth = 0)
         
         gi = board.getGameInfo(0)

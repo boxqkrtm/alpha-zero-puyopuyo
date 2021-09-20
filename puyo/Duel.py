@@ -10,12 +10,13 @@ EPS = 1e-8
 
 dueldll = 0
 try:
-  dueldll = cdll.LoadLibrary('./puyo/tuyotuyo')
+    dueldll = cdll.LoadLibrary('./puyo/tuyotuyo')
 except:
-  dueldll = cdll.LoadLibrary('/usr/lib/tuyotuyo.so')
-  
+    dueldll = cdll.LoadLibrary('/usr/lib/tuyotuyo.so')
+
 
 gcnt = 0
+
 
 class GameInfo(object):
 
@@ -23,7 +24,7 @@ class GameInfo(object):
         global gcnt
         self.obj = obj
         gcnt += 1
-        #print(gcnt)
+        # print(gcnt)
 
     def __del__(self):
         global gcnt
@@ -32,13 +33,15 @@ class GameInfo(object):
         dueldll.GameInfoDel.restype = c_void_p
         dueldll.GameInfoDel(self.obj)
 
+
 dcnt = 0
+
 
 class Duel(object):
 
     def __init__(self, seed=None, duel=None, obj=None):
         global dcnt
-        #print(dcnt)
+        # print(dcnt)
         self.p1 = -1
         self.p2 = -1
         self.isPlayer = 1
@@ -75,6 +78,11 @@ class Duel(object):
             self.obj = dueldll.DuelNew(seed)
             self.input(0, 0)
             self.run()  # init
+
+    def randUnknownData(self):
+        dueldll.DuelRandUnknownData.argtypes = [c_void_p]
+        dueldll.DuelRandUnknownData.restype = c_void_p
+        dueldll.DuelRandUnknownData(self.obj)
 
     def reset(self, seed=None):
         if(seed == None):
@@ -339,8 +347,8 @@ class Duel(object):
         result = [vals[i] for i in range(14*14)]
         result = np.reshape(result, (14, 14, 1))
         self.GrayScaleDel(vals)
-        #plt.imshow(result)
-        #plt.show()
+        # plt.imshow(result)
+        # plt.show()
         return result
 
     def GrayScaleDel(self, obj):
