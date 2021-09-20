@@ -7,6 +7,7 @@ from pickle import Pickler, Unpickler
 from random import shuffle
 from puyo.Duel import *
 from multiprocessing import Process, Queue, Manager
+import multiprocessing as mp
 from puyo.PuyoGame import PuyoGame as Game
 from puyo.pytorch.NNet import NNetWrapper as nn
 import gc
@@ -14,6 +15,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 from utils import *
+import torch
+try:
+    mp.set_start_method('spawn')
+except RuntimeError:
+    pass
 
 from Arena import Arena
 from MCTS import MCTS
@@ -41,7 +47,7 @@ args = dotdict({
 })
 nowIter=1
 proreturn = {}
-threads = 5
+threads = 4
 nnet = nn(Game())
 
 def executeEpisode(pn, args, returndict):
