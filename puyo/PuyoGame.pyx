@@ -108,6 +108,16 @@ class PuyoGame(Game):
         else:
             return (b, 1)  # game over
 
+    def whoTurn(self, b):
+        state = b.status()
+        if(state == 0):
+            return 1
+        elif(state == 1):
+            return -1
+        elif(state == 2):  # 둘다 필요할땐 1p로 설정
+            return 1
+        else:
+            return 1  # game over
 
     def getValidMoves(self, board, player):
         if(player == 1):

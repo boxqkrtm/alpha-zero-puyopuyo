@@ -42,8 +42,6 @@ class MCTS():
 
         self.Es = {}  # stores game.getGameEnded ended for board s
         self.Vs = {}  # stores game.getValidMoves for board s
-
-
         """
         This function performs numMCTSSims simulations of MCTS starting from
         canonicalBoard.
@@ -53,15 +51,19 @@ class MCTS():
                    proportional to Nsa[(s,a)]**(1./temp)
         """
         
-        
-        
+        #next 1 and next 2 visit
         for i in range(self.args.numMCTSSims):
             d = Duel(duel=board)
+            #d.print()
             #d = Duel()
             d.randUnknownData()
             self.search(d, depth = 0)
-        
         gi = board.getGameInfo(0)
+        #s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))
+        depth = 0
+        a = ""
+        nplayer = board.isPlayer
+        #s = str(depth)+"-"+str(a)+"-"+str(nplayer)
         s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))
         #self.game.stringRepresentation(board)
         counts = [self.Nsa[(s, a)] if (
@@ -99,9 +101,10 @@ class MCTS():
             v: the negative of the value of the current canonicalBoard
         """
         gi = board.getGameInfo(0)
+        #s = str(depth)+"-"+str(a)+"-"+str(board.isPlayer)
         s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))
         #self.game.stringRepresentation(board)
-
+        #print(s)
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(board, 1)
 
@@ -123,7 +126,7 @@ class MCTS():
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.
                 log.error("All valid moves were masked, doing a workaround.")
-                board.print()
+                #board.print()
                 print(valids)
                 print(self.Ps[s])
                 self.Ps[s] = self.Ps[s] + valids
@@ -137,6 +140,8 @@ class MCTS():
         valids = self.Vs[s]
         cur_best = -float('inf')
         best_act = -1
+
+        
 
         # pick the action with the highest upper confidence bound
         for a in range(self.game.getActionSize()):
@@ -154,6 +159,10 @@ class MCTS():
 
         a = best_act
         
+        #print(best_act)
+
+        #print("mcts")
+        #board.print()
         next_board, next_player = self.game.getNextStateRaw(board, 1, a)
         cb = self.game.getCanonicalFormBoardRaw(next_board, next_player)
         
