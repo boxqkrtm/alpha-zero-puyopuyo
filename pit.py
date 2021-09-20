@@ -1,15 +1,16 @@
-import pyximport; pyximport.install()
+import pyximport
+pyximport.install()
 import os
 import sys
-
 import numpy as np
-
 import Arena
 from MCTS import MCTS
 from puyo.PuyoGame import PuyoGame as Game
 from puyo.PuyoPlayers import *
 from puyo.pytorch.NNet import NNetWrapper as NNet
 from utils import *
+
+
 
 os.system("chcp 65001")
 
@@ -48,7 +49,6 @@ else:
     player2 = n2p  # Player 2 is neural network if it's cpu vs cpu.
 
 while(True):
-
 
     arena = Arena.Arena(n1p, player2, g, display=Game.display)
 

@@ -57,6 +57,7 @@ class MCTS():
         
         for i in range(self.args.numMCTSSims):
             d = Duel(duel=board)
+            #d = Duel()
             d.randUnknownData()
             self.search(d, depth = 0)
         
@@ -110,7 +111,6 @@ class MCTS():
 
         if s not in self.Ps:
             # leaf node
-            
             self.Ps[s], v = self.nnet.predict(board.GrayScaleArray(board.getGameInfo(0)))
             valids = self.game.getValidMoves(board, 1)
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
