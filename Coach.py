@@ -37,7 +37,7 @@ args = dotdict({
     'maxlenOfQueue': 200000,
     'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
-    'arenaCompare': 40,
+    'arenaCompare': 40,  # 40
     'cpuct': 1,
 
     'checkpoint': './temp/',
@@ -45,11 +45,67 @@ args = dotdict({
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 })
-nowIter=21
-#108 add garbage score
+nowIter = 2
+# 108 add garbage score
 proreturn = {}
 threads = 4
 nnet = nn(Game())
+
+
+def playGames(num, verbose=False, returndict=None, threadNum=None):
+    """
+        Plays num games in which player1 starts num/2 games and player2 starts
+        num/2 games.
+
+        Returns:
+            oneWon: games won by player1
+            twoWon: games won by player2
+            draws:  games won by nobody
+        """
+    pnet = nn(Game())
+    pnet.load_checkpoint(
+        folder=args.checkpoint, filename='temp.pth.tar')
+    pmcts = MCTS(Game(), pnet, args)
+    nmcts = MCTS(Game(), nnet, args)
+    player1 = (lambda x: np.argmax(pmcts.getActionProb(x, temp=0)))
+    player2 = (lambda x: np.argmax(nmcts.getActionProb(x, temp=0)))
+    oneWon = 0
+    twoWon = 0
+    draws = 0
+    for _ in tqdm(range(num), desc="Arena.playGames (1)"):
+        game = Game()
+        players = [player2, None, player1]
+        curPlayer = 1
+        board = game.getInitBoard()
+        it = 0
+        while game.getGameEnded(board, curPlayer) == 0:
+            it += 1
+            cb = game.getCanonicalFormBoard(board, curPlayer)
+            action = players[curPlayer + 1](cb)
+            valids = game.getValidMoves(cb, 1)
+
+            if valids[action] == 0:
+                log.error(f'Action {action} is not valid!')
+                log.debug(f'valids = {valids}')
+                board.print()
+                cb.print()
+                assert valids[action] > 0
+            board, curPlayer = game.getNextStateRaw(
+                board, curPlayer, action)
+        gameResult = curPlayer * game.getGameEnded(board, curPlayer)
+
+        if gameResult == 1:
+            oneWon += 1
+        elif gameResult == -1:
+            twoWon += 1
+        else:
+            draws += 1
+
+    if(returndict != None):
+        returndict[threadNum] = [oneWon, twoWon, draws]
+    else:
+        return oneWon, twoWon, draws
+
 
 def executeEpisode(pn, args, returndict):
     global proreturn, nnet, mcts
@@ -79,24 +135,28 @@ def executeEpisode(pn, args, returndict):
     while True:
         episodeStep += 1
         temp = int(episodeStep < args.tempThreshold)
-        cboard = game.getCanonicalFormBoard(board,curPlayer)
+        cboard = game.getCanonicalFormBoard(board, curPlayer)
 
         pi = mcts.getActionProb(cboard, temp=temp)
-        #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
-        trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(0)), curPlayer, pi, game.getFieldOjama(cboard, -curPlayer)])
+        # pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
+        trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(
+            0)), curPlayer, pi, game.getFieldOjama(cboard, -curPlayer)])
         action = np.random.choice(len(pi), p=pi)
-        #print("coach")
-        #board.print()
+        # print("coach")
+        # board.print()
         board, curPlayer = game.getNextStateRaw(
             board, curPlayer, action)
-        #print(pi)
+        # print(pi)
         del cboard
         r = game.getGameEnded(board, curPlayer)
         if r != 0:
             del mcts
             del board
-            returndict[pn] = [(x[0], x[2], (x[3]) * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
+            returndict[pn] = [
+                (x[0], x[2], (x[3]) * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
             return
+
+
 class Coach():
     """
     This class executes the self-play + learning. It uses the functions defined
@@ -114,7 +174,6 @@ class Coach():
         # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.trainExamplesHistory = []
         self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
-
 
     def learn(self):
         global proreturn, nnet, threads, mcts, nnet, nowIter
@@ -135,7 +194,7 @@ class Coach():
                     [], maxlen=self.args.maxlenOfQueue)
 
                 if self.args.load_model:
-                    #log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
+                    # log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
                     try:
                         nnet.load_checkpoint(
                             self.args.load_folder_file[0], self.args.load_folder_file[1])
@@ -143,17 +202,17 @@ class Coach():
                         print("no model")
                 else:
                     pass
-                    #log.warning('Not loading a checkpoint!')
-                    
+                    # log.warning('Not loading a checkpoint!')
 
-                for _ in tqdm(range(0,self.args.numEps, threads), desc="Self Play"):
+                for _ in tqdm(range(0, self.args.numEps, threads), desc="Self Play"):
                     # reset search tree
                     pro = []
                     manager = Manager()
                     returndict = manager.dict()
                     for a in range(threads):
                         args = self.args
-                        pro.append(Process(target=executeEpisode, args=(i, args,returndict) ))
+                        pro.append(Process(target=executeEpisode,
+                                   args=(i, args, returndict)))
                     for a in pro:
                         a.start()
                     for a in pro:
@@ -164,7 +223,7 @@ class Coach():
                     del pro
                     del manager
                     del returndict
-                #gc.collect()
+                # gc.collect()
                 # save the iteration examples to the history
                 self.trainExamplesHistory.append(iterationTrainExamples)
 
@@ -193,9 +252,22 @@ class Coach():
             nmcts = MCTS(self.game, nnet, self.args)
 
             log.info('PITTING AGAINST PREVIOUS VERSION')
-            arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
-                          lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
-            pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
+
+            pro = []
+            manager = Manager()
+            returndict = manager.dict()
+            for a in range(int(threads/2)):
+                pro.append(Process(target=playGames, args=(
+                    int(self.args.arenaCompare/int(threads/2)), False, returndict, a)))
+            for a in pro:
+                a.start()
+            for a in pro:
+                a.join()
+            pwins, nwins, draws = 0, 0, 0
+            for a in returndict.values():
+                pwins += a[0]
+                nwins += a[1]
+                draws += a[2]
 
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' %
                      (nwins, pwins, draws))
@@ -226,8 +298,9 @@ class Coach():
     def loadTrainExamples(self):
         modelFile = os.path.join(
             self.args.load_folder_file[0], self.args.load_folder_file[1])
-        examplesFile = "./temp/checkpoint_"+str(nowIter-1)+".pth.tar"+".examples"
-        #modelFile + ".examples"
+        examplesFile = "./temp/checkpoint_" + \
+            str(nowIter-1)+".pth.tar"+".examples"
+        # modelFile + ".examples"
         if not os.path.isfile(examplesFile):
             log.warning(f'File "{examplesFile}" with trainExamples not found!')
         else:

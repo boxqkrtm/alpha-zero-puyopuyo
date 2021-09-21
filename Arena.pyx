@@ -6,7 +6,6 @@ import gc
 
 log = logging.getLogger(__name__)
 
-
 class Arena():
     """
     An Arena class where any 2 agents can be pit against each other.
@@ -67,7 +66,7 @@ class Arena():
             board.print()
         return curPlayer * self.game.getGameEnded(board, curPlayer)
 
-    def playGames(self, num, verbose=False):
+    def playGames(self, num, verbose=False, returndict=None, threadNum=None):
         """
         Plays num games in which player1 starts num/2 games and player2 starts
         num/2 games.
@@ -103,5 +102,7 @@ class Arena():
                 twoWon += 1
             else:
                 draws += 1
-
-        return oneWon, twoWon, draws
+        if(returndict != None):
+            returndict[threadNum] = (oneWon, twoWon, draws)
+        else:
+            return oneWon, twoWon, draws
