@@ -128,6 +128,8 @@ def executeEpisode(pn, args, returndict):
     """
     game = Game()
     nnet = nnet
+    nnet.load_checkpoint(
+        args.load_folder_file[0], args.load_folder_file[1])
     mcts = MCTS(Game(), nnet, args)
     trainExamples = []
     board = game.getInitBoard()
@@ -246,14 +248,10 @@ class Coach():
             # training new network, keeping a copy of the old one
             nnet.save_checkpoint(
                 folder=self.args.checkpoint, filename='temp.pth.tar')
-            self.pnet.load_checkpoint(
-                folder=self.args.checkpoint, filename='temp.pth.tar')
-            pmcts = MCTS(self.game, self.pnet, self.args)
 
             nnet.train(trainExamples)
             nnet.save_checkpoint(
                 folder=self.args.checkpoint, filename='temptrain.pth.tar')
-            nmcts = MCTS(self.game, nnet, self.args)
 
             log.info('PITTING AGAINST PREVIOUS VERSION')
 
