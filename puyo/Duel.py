@@ -9,7 +9,10 @@ import matplotlib.pyplot as plt
 EPS = 1e-8
 
 dueldll = 0
-dueldll = cdll.LoadLibrary('./puyo/tuyotuyo')
+try:
+    dueldll = cdll.LoadLibrary('./puyo/tuyotuyo')
+except:
+    dueldll = cdll.LoadLibrary('./puyo/tuyotuyo.so')
 
 
 gcnt = 0

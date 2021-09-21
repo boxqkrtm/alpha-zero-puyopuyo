@@ -45,7 +45,7 @@ args = dotdict({
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 })
-nowIter=1
+nowIter=21
 #108 add garbage score
 proreturn = {}
 threads = 4
@@ -83,7 +83,7 @@ def executeEpisode(pn, args, returndict):
 
         pi = mcts.getActionProb(cboard, temp=temp)
         #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
-        trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(0)), curPlayer, pi, -game.getFieldOjama(cboard, curPlayer)+game.getFieldOjama(cboard, -curPlayer)])
+        trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(0)), curPlayer, pi, game.getFieldOjama(cboard, -curPlayer)])
         action = np.random.choice(len(pi), p=pi)
         #print("coach")
         #board.print()
