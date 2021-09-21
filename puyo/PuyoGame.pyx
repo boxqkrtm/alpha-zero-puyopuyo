@@ -175,6 +175,8 @@ class PuyoGame(Game):
     def getFieldOjama(self, board, player):
         ojama = 0
         p = 0 if player == 1 else 1
+        if(board.getMyField(board.getGameInfo(p))[6+2] != 0):
+            return 1
         for i in board.getMyField(board.getGameInfo(p)):
             if(i == 6):
                 ojama+=1

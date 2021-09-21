@@ -45,10 +45,10 @@ args = dotdict({
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 })
-nowIter=113
+nowIter=1
 #108 add garbage score
 proreturn = {}
-threads = 4
+threads = 2
 nnet = nn(Game())
 
 def executeEpisode(pn, args, returndict):
@@ -136,8 +136,11 @@ class Coach():
 
                 if self.args.load_model:
                     #log.info('Loading checkpoint "%s/%s"...', args.load_folder_file)
-                    nnet.load_checkpoint(
-                        self.args.load_folder_file[0], self.args.load_folder_file[1])
+                    try:
+                        nnet.load_checkpoint(
+                            self.args.load_folder_file[0], self.args.load_folder_file[1])
+                    except:
+                        print("no model")
                 else:
                     pass
                     #log.warning('Not loading a checkpoint!')
