@@ -14,13 +14,14 @@ from tqdm import tqdm
 sys.path.append('../../')
 
 args = dotdict({
-    'lr': 0.001,
+    'lr': 0.0005,
     'dropout': 0.3,
     'epochs': 50,
     'batch_size': 512,
     'cuda': True,  # torch.cuda.is_available()
     'num_channels': 64,
 })
+
 
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
@@ -30,8 +31,8 @@ class NNetWrapper(NeuralNet):
 
         if args.cuda:
             self.nnet.cuda()
-            #torch.cuda.set_per_process_memory_fraction(0.1)
-            #torch.cuda.empty_cache()
+            # torch.cuda.set_per_process_memory_fraction(0.1)
+            # torch.cuda.empty_cache()
 
     def train(self, examples):
         """
