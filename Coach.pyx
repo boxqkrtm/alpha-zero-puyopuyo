@@ -41,11 +41,12 @@ args = dotdict({
     'cpuct': 1,
 
     'checkpoint': './temp/',
-    'load_model': False,
+    'load_model': True,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 })
-nowIter=1
+nowIter=113
+#108 add garbage score
 proreturn = {}
 threads = 4
 nnet = nn(Game())
@@ -82,7 +83,7 @@ def executeEpisode(pn, args, returndict):
 
         pi = mcts.getActionProb(cboard, temp=temp)
         #pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
-        trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(0)), curPlayer, pi, None])
+        trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(0)), curPlayer, pi, -game.getFieldOjama(cboard, curPlayer)+game.getFieldOjama(cboard, -curPlayer)])
         action = np.random.choice(len(pi), p=pi)
         #print("coach")
         #board.print()
@@ -94,7 +95,7 @@ def executeEpisode(pn, args, returndict):
         if r != 0:
             del mcts
             del board
-            returndict[pn] = [(x[0], x[2], r * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
+            returndict[pn] = [(x[0], x[2], (x[3]) * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
             return
 class Coach():
     """
@@ -222,7 +223,8 @@ class Coach():
     def loadTrainExamples(self):
         modelFile = os.path.join(
             self.args.load_folder_file[0], self.args.load_folder_file[1])
-        examplesFile = modelFile + ".examples"
+        examplesFile = "./temp/checkpoint_"+str(nowIter-1)+".pth.tar"+".examples"
+        #modelFile + ".examples"
         if not os.path.isfile(examplesFile):
             log.warning(f'File "{examplesFile}" with trainExamples not found!')
         else:
