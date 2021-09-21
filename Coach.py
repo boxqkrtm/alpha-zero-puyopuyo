@@ -66,6 +66,8 @@ def playGames(num, verbose=False, returndict=None, threadNum=None):
     pnet.load_checkpoint(
         folder=args.checkpoint, filename='temp.pth.tar')
     pmcts = MCTS(Game(), pnet, args)
+    nnet.load_checkpoint(
+        folder=args.checkpoint, filename='temptrain.pth.tar')
     nmcts = MCTS(Game(), nnet, args)
     player1 = (lambda x: np.argmax(pmcts.getActionProb(x, temp=0)))
     player2 = (lambda x: np.argmax(nmcts.getActionProb(x, temp=0)))
@@ -249,6 +251,8 @@ class Coach():
             pmcts = MCTS(self.game, self.pnet, self.args)
 
             nnet.train(trainExamples)
+            nnet.save_checkpoint(
+                folder=self.args.checkpoint, filename='temptrain.pth.tar')
             nmcts = MCTS(self.game, nnet, self.args)
 
             log.info('PITTING AGAINST PREVIOUS VERSION')
