@@ -48,7 +48,7 @@ args = dotdict({
 nowIter=1
 #108 add garbage score
 proreturn = {}
-threads = 2
+threads = 4
 nnet = nn(Game())
 
 def executeEpisode(pn, args, returndict):
