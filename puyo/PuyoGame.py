@@ -67,6 +67,7 @@ class PuyoGame(Game):
             return (b, 1)
         else:
             return (b, 1)  # game over
+
     def getNextStateRaw(self, b, player, action):
         self.turn += 1
         #b.input(action, -1)
@@ -140,7 +141,6 @@ class PuyoGame(Game):
             # board.print()
             return 0
 
-
     def getCanonicalFormBoard(self, board, player):
         b = Duel(duel=board)
         # return state if player==1, else return -state if player==-1
@@ -150,7 +150,6 @@ class PuyoGame(Game):
             b.swap()
             return b
 
-
     def getCanonicalFormBoardRaw(self, b, player):
         # return state if player==1, else return -state if player==-1
         if(1 == player):
@@ -158,8 +157,6 @@ class PuyoGame(Game):
         else:
             b.swap()
             return b
-
-
 
     def stringRepresentation(self, board):
         """
@@ -179,8 +176,11 @@ class PuyoGame(Game):
             return 1
         for i in board.getMyField(board.getGameInfo(p)):
             if(i == 6):
-                ojama+=1
+                ojama += 1
         return ojama/13*6
-        
+
     def display(self):
+        import os
+        os.system("cls")
+        os.system("clear")
         self.d.print()

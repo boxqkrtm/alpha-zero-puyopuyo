@@ -3,6 +3,7 @@ import logging
 
 from tqdm import tqdm
 import gc
+import os
 
 log = logging.getLogger(__name__)
 
@@ -46,6 +47,8 @@ class Arena():
             it += 1
             if verbose:
                 #assert self.display
+                os.system("cls")
+                os.system("clear")
                 print("Turn ", str(it), "Player ", str(curPlayer))
                 board.print()
             cb = self.game.getCanonicalFormBoard(board, curPlayer)
@@ -61,6 +64,8 @@ class Arena():
             board, curPlayer = self.game.getNextStateRaw(board, curPlayer, action)
         if verbose:
             #assert self.display
+            os.system("cls")
+            os.system("clear")
             print("Game over: Turn ", str(it), "Result ",
                   str(self.game.getGameEnded(board, 1)))
             board.print()
