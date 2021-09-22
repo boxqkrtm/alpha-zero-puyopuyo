@@ -34,6 +34,9 @@ class NNetWrapper(NeuralNet):
             # torch.cuda.set_per_process_memory_fraction(0.1)
             # torch.cuda.empty_cache()
 
+    def share_memory(self):
+        self.nnet.share_memory()
+
     def train(self, examples):
         """
         examples: list of examples, each example is of form (board, pi, v)

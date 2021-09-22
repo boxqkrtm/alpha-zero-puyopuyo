@@ -22,8 +22,10 @@ class PuyoNNet(nn.Module):
         self.conv1 = nn.Conv2d(1, args.num_channels, 3, stride=1, padding=1)
         self.conv2 = nn.Conv2d(
             args.num_channels, args.num_channels, 3, stride=1, padding=1)
-        self.conv3 = nn.Conv2d( args.num_channels, args.num_channels, 3, stride=1)
-        self.conv4 = nn.Conv2d( args.num_channels, args.num_channels, 3, stride=1)
+        self.conv3 = nn.Conv2d(
+            args.num_channels, args.num_channels, 3, stride=1)
+        self.conv4 = nn.Conv2d(
+            args.num_channels, args.num_channels, 3, stride=1)
 
         self.bn1 = nn.BatchNorm2d(args.num_channels)
         self.bn2 = nn.BatchNorm2d(args.num_channels)
@@ -31,15 +33,15 @@ class PuyoNNet(nn.Module):
         self.bn4 = nn.BatchNorm2d(args.num_channels)
 
         self.fc1 = nn.Linear(
-            args.num_channels*(self.board_x-4)*(self.board_y-4), 128)
-        self.fc_bn1 = nn.BatchNorm1d(128)
+            args.num_channels*(self.board_x-4)*(self.board_y-4), 1024)
+        self.fc_bn1 = nn.BatchNorm1d(1024)
 
-        self.fc2 = nn.Linear(128, 64)
-        self.fc_bn2 = nn.BatchNorm1d(64)
+        self.fc2 = nn.Linear(1024, 512)
+        self.fc_bn2 = nn.BatchNorm1d(512)
 
-        self.fc3 = nn.Linear(64, self.action_size)
+        self.fc3 = nn.Linear(512, self.action_size)
 
-        self.fc4 = nn.Linear(64, 1)
+        self.fc4 = nn.Linear(512, 1)
 
     def forward(self, s):
         #                                                           s: batch_size x board_x x board_y
@@ -58,7 +60,8 @@ class PuyoNNet(nn.Module):
 
         s = F.dropout(F.relu(self.fc_bn1(self.fc1(s))), p=self.args.dropout,
                       training=self.training)  # batch_size x 1024
-        s = F.dropout(F.relu(self.fc_bn2(self.fc2(s))), p=self.args.dropout, training=self.training)  # batch_size x 512
+        s = F.dropout(F.relu(self.fc_bn2(self.fc2(s))), p=self.args.dropout,
+                      training=self.training)  # batch_size x 512
 
         # batch_size x action_size
         pi = self.fc3(s)

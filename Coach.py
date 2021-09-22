@@ -38,18 +38,21 @@ args = dotdict({
     'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
     'arenaCompare': 40,  # 40
-    'cpuct': 1,
+    'cpuct': 3,
 
     'checkpoint': './temp/',
     'load_model': True,
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 })
-nowIter = 2
+nowIter = 1
 # 108 add garbage score
 proreturn = {}
 threads = 4
 nnet = nn(Game())
+nnet.share_memory()
+pnet = nn(Game())
+pnet.share_memory()
 
 
 def playGames(num, verbose=False, returndict=None, threadNum=None):
@@ -62,12 +65,7 @@ def playGames(num, verbose=False, returndict=None, threadNum=None):
             twoWon: games won by player2
             draws:  games won by nobody
         """
-    pnet = nn(Game())
-    pnet.load_checkpoint(
-        folder=args.checkpoint, filename='temp.pth.tar')
     pmcts = MCTS(Game(), pnet, args)
-    nnet.load_checkpoint(
-        folder=args.checkpoint, filename='temptrain.pth.tar')
     nmcts = MCTS(Game(), nnet, args)
     player1 = (lambda x: np.argmax(pmcts.getActionProb(x, temp=0)))
     player2 = (lambda x: np.argmax(nmcts.getActionProb(x, temp=0)))
@@ -127,9 +125,6 @@ def executeEpisode(pn, args, returndict):
                         the player eventually won the game, else -1.
     """
     game = Game()
-    nnet = nnet
-    nnet.load_checkpoint(
-        args.load_folder_file[0], args.load_folder_file[1])
     mcts = MCTS(Game(), nnet, args)
     trainExamples = []
     board = game.getInitBoard()
@@ -248,10 +243,9 @@ class Coach():
             # training new network, keeping a copy of the old one
             nnet.save_checkpoint(
                 folder=self.args.checkpoint, filename='temp.pth.tar')
-
+            pnet.load_checkpoint(folder=args.checkpoint,
+                                 filename='temp.pth.tar')
             nnet.train(trainExamples)
-            nnet.save_checkpoint(
-                folder=self.args.checkpoint, filename='temptrain.pth.tar')
 
             log.info('PITTING AGAINST PREVIOUS VERSION')
 
