@@ -45,10 +45,10 @@ args = dotdict({
     'load_folder_file': ('./temp/', 'best.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 })
-nowIter = 1
+nowIter = 3
 # 108 add garbage score
 proreturn = {}
-threads = 4
+threads = 6
 nnet = nn(Game())
 nnet.share_memory()
 pnet = nn(Game())
@@ -232,7 +232,7 @@ class Coach():
                 self.trainExamplesHistory.pop(0)
             # backup history to a file
             # NB! the examples were collected using the model from the previous iteration, so (i-1)
-            self.saveTrainExamples(i - 1)
+            self.saveTrainExamples(i)
 
             # shuffle examples before training
             trainExamples = []
