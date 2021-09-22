@@ -151,7 +151,7 @@ def executeEpisode(pn, args, returndict):
             del mcts
             del board
             returndict[pn] = [
-                (x[0], x[2], (x[3]) * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
+                (x[0], x[2], x[3]) for x in trainExamples]
             return
 
 
