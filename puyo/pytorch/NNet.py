@@ -37,6 +37,9 @@ class NNetWrapper(NeuralNet):
     def share_memory(self):
         self.nnet.share_memory()
 
+    def pin_memory(self):
+        self.nnet.pin_memory()
+
     def train(self, examples):
         """
         examples: list of examples, each example is of form (board, pi, v)
