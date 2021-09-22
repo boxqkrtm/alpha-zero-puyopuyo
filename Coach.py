@@ -48,11 +48,13 @@ args = dotdict({
 nowIter = 3
 # 108 add garbage score
 proreturn = {}
-threads = 6
+threads = 4
 nnet = nn(Game())
 nnet.share_memory()
+nnet.pin_memory()
 pnet = nn(Game())
 pnet.share_memory()
+pnet.pin_memory()
 
 
 def playGames(num, verbose=False, returndict=None, threadNum=None):
