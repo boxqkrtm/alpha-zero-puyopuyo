@@ -52,6 +52,8 @@ class MCTS():
         """
         
         #next 1 and next 2 visit
+        d = Duel(duel=board)
+        self.search(d, depth = 0, first = True)
         for i in range(self.args.numMCTSSims):
             d = Duel(duel=board)
             #d.print()
@@ -64,7 +66,7 @@ class MCTS():
         a = ""
         nplayer = board.isPlayer
         #s = str(depth)+"-"+str(a)+"-"+str(nplayer)
-        s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))
+        s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))+"-"+str(board.isPlayer)
         #self.game.stringRepresentation(board)
         counts = [self.Nsa[(s, a)] if (
             s, a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
@@ -81,7 +83,7 @@ class MCTS():
         probs = [x / counts_sum for x in counts]
         return probs
 
-    def search(self, board, depth=0):
+    def search(self, board, depth=0, first = False):
         """
         This function performs one iteration of MCTS. It is recursively called
         till a leaf node is found. The action chosen at each node is one that
@@ -102,7 +104,7 @@ class MCTS():
         """
         gi = board.getGameInfo(0)
         #s = str(depth)+"-"+str(a)+"-"+str(board.isPlayer)
-        s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))
+        s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))+"-"+str(board.isPlayer)
         #self.game.stringRepresentation(board)
         #print(s)
         if s not in self.Es:
@@ -115,6 +117,7 @@ class MCTS():
         if s not in self.Ps:
             # leaf node
             self.Ps[s], v = self.nnet.predict(board.GrayScaleArray(board.getGameInfo(0)))
+            #v = self.game.getFieldOjama(board, -1)
             valids = self.game.getValidMoves(board, 1)
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
@@ -134,8 +137,10 @@ class MCTS():
 
             self.Vs[s] = valids
             self.Ns[s] = 0
-            
-            return -v
+            if(depth < 2 and first == True):
+                pass
+            else:
+                return -v
 
         valids = self.Vs[s]
         cur_best = -float('inf')
@@ -156,6 +161,24 @@ class MCTS():
                 if u > cur_best:
                     cur_best = u
                     best_act = a
+                if(first and depth == 0):
+                    next_board, next_player = self.game.getNextState(board, 1, a)
+                    cb = self.game.getCanonicalFormBoard(next_board, next_player)
+                    
+                    v = self.search(cb, depth+1)
+
+                    if (s, a) in self.Qsa:
+                        self.Qsa[(s, a)] = (self.Nsa[(s, a)] *
+                                            self.Qsa[(s, a)] + v) / (self.Nsa[(s, a)] + 1)
+                        self.Nsa[(s, a)] += 1
+
+                    else:
+                        self.Qsa[(s, a)] = v
+                        self.Nsa[(s, a)] = 1
+
+                    self.Ns[s] += 1
+
+
 
         a = best_act
         
