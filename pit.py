@@ -1,14 +1,15 @@
 import pyximport
 pyximport.install()
-import os
-import sys
-import numpy as np
-import Arena
-from MCTS import MCTS
-from puyo.PuyoGame import PuyoGame as Game
-from puyo.PuyoPlayers import *
-from puyo.pytorch.NNet import NNetWrapper as NNet
 from utils import *
+from puyo.pytorch.NNet import NNetWrapper as NNet
+from puyo.PuyoPlayers import *
+from puyo.PuyoGame import PuyoGame as Game
+from MCTS import MCTS
+import Arena
+import numpy as np
+import sys
+import os
+
 
 os.system("chcp 65001")
 
@@ -30,7 +31,7 @@ hp = HumanOthelloPlayer(g).play
 n1 = NNet(g)
 #n1.load_checkpoint('./temp/', 'best.pth.tar')
 n1.load_checkpoint('./temp/', 'best.pth.tar')
-args1 = dotdict({'numMCTSSims': 100, 'cpuct': 1.0})
+args1 = dotdict({'numMCTSSims': 100, 'cpuct': 0.0})
 mcts1 = MCTS(g, n1, args1)
 def n1p(x): return np.argmax(mcts1.getActionProb(x, temp=0))
 
@@ -40,12 +41,12 @@ if human_vs_cpu:
 else:
     n2 = NNet(g)
     n2.load_checkpoint('./temp/', 'best.pth.tar')
-    args2 = dotdict({'numMCTSSims': 100, 'cpuct': 1.0})
+    args2 = dotdict({'numMCTSSims': 100, 'cpuct': 0.10})
     mcts2 = MCTS(g, n2, args2)
     def n2p(x): return np.argmax(mcts2.getActionProb(x, temp=0))
 
     player2 = n2p  # Player 2 is neural network if it's cpu vs cpu.
-
+    #player2 = rp
 while(True):
 
     arena = Arena.Arena(n1p, player2, g, display=Game.display)

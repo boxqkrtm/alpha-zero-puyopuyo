@@ -138,20 +138,19 @@ def executeEpisode(pn, args, returndict):
         pi = mcts.getActionProb(cboard, temp=temp)
         # pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
         trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(
-            0)), curPlayer, pi, game.getFieldOjama(cboard, -curPlayer)])
+            0)), curPlayer, pi, None])
+
         action = np.random.choice(len(pi), p=pi)
         # print("coach")
         # board.print()
         board, curPlayer = game.getNextStateRaw(
             board, curPlayer, action)
         # print(pi)
-        del cboard
         r = game.getGameEnded(board, curPlayer)
         if r != 0:
             del mcts
             del board
-            returndict[pn] = [
-                (x[0], x[2], x[3]) for x in trainExamples]
+            returndict[pn] = [(x[0], x[2], r * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
             return
 
 
