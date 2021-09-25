@@ -12,7 +12,13 @@ dueldll = 0
 try:
     dueldll = cdll.LoadLibrary('./puyo/tuyotuyo')
 except:
-    dueldll = cdll.LoadLibrary('./puyo/tuyotuyo.so')
+    try:
+        dueldll = cdll.LoadLibrary('./puyo/tuyotuyo.so')
+    except:
+        try:
+          dueldll = cdll.LoadLibrary('/usr/lib/tuyotuyo.so')
+        except:
+          print("dynamic link error")
 
 
 gcnt = 0

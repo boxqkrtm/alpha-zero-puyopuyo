@@ -9,7 +9,7 @@ from puyo.Duel import *
 from multiprocessing import Process, Queue, Manager
 import multiprocessing as mp
 from puyo.PuyoGame import PuyoGame as Game
-from puyo.pytorch.NNet import NNetWrapper as nn
+from puyo.keras.NNet import NNetWrapper as nn
 import gc
 import matplotlib.pyplot as plt
 import numpy as np
@@ -47,11 +47,11 @@ args = dotdict({
 })
 nowIter = 1
 proreturn = {}
-threads = 4
+threads = 1
 nnet = nn(Game())
-nnet.share_memory()
+#nnet.share_memory()
 pnet = nn(Game())
-pnet.share_memory()
+#pnet.share_memory()
 
 
 def playGames(num, verbose=False, returndict=None, threadNum=None):
@@ -136,6 +136,7 @@ def executeEpisode(pn, args, returndict):
         cboard = game.getCanonicalFormBoard(board, curPlayer)
 
         pi = mcts.getActionProb(cboard, temp=temp)
+        print("step")
         # pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
         trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(
             0)), curPlayer, pi, None])
@@ -200,28 +201,42 @@ class Coach():
                 else:
                     pass
                     # log.warning('Not loading a checkpoint!')
+                if(threads == 1):
+                    for _ in tqdm(range(0, self.args.numEps, threads), desc="Self Play"):
+                        # reset search tree
+                        pro = []
+                        manager = Manager()
+                        returndict = manager.dict()
+                        executeEpisode(0, self.args, returndict)
+                        for a in returndict.values():
+                            iterationTrainExamples += a
+                        del pro
+                        del manager
+                        del returndict
+                    # gc.collect()
+                    # save the iteration examples to the history
+                else:
+                    for _ in tqdm(range(0, self.args.numEps, threads), desc="Self Play"):
+                        # reset search tree
+                        pro = []
+                        manager = Manager()
+                        returndict = manager.dict()
+                        for a in range(threads):
+                            args = self.args
+                            pro.append(Process(target=executeEpisode,
+                                    args=(i, args, returndict)))
+                        for a in pro:
+                            a.start()
+                        for a in pro:
+                            a.join()
 
-                for _ in tqdm(range(0, self.args.numEps, threads), desc="Self Play"):
-                    # reset search tree
-                    pro = []
-                    manager = Manager()
-                    returndict = manager.dict()
-                    for a in range(threads):
-                        args = self.args
-                        pro.append(Process(target=executeEpisode,
-                                   args=(i, args, returndict)))
-                    for a in pro:
-                        a.start()
-                    for a in pro:
-                        a.join()
-
-                    for a in returndict.values():
-                        iterationTrainExamples += a
-                    del pro
-                    del manager
-                    del returndict
-                # gc.collect()
-                # save the iteration examples to the history
+                        for a in returndict.values():
+                            iterationTrainExamples += a
+                        del pro
+                        del manager
+                        del returndict
+                    # gc.collect()
+                    # save the iteration examples to the history
                 self.trainExamplesHistory.append(iterationTrainExamples)
 
             if len(self.trainExamplesHistory) > self.args.numItersForTrainExamplesHistory:

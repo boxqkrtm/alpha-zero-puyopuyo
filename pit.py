@@ -1,7 +1,7 @@
 import pyximport
 pyximport.install()
 from utils import *
-from puyo.pytorch.NNet import NNetWrapper as NNet
+from puyo.keras.NNet import NNetWrapper as NNet
 from puyo.PuyoPlayers import *
 from puyo.PuyoGame import PuyoGame as Game
 from MCTS import MCTS
@@ -31,7 +31,7 @@ hp = HumanOthelloPlayer(g).play
 n1 = NNet(g)
 #n1.load_checkpoint('./temp/', 'best.pth.tar')
 n1.load_checkpoint('./temp/', 'best.pth.tar')
-args1 = dotdict({'numMCTSSims': 100, 'cpuct': 0.0})
+args1 = dotdict({'numMCTSSims': 25, 'cpuct': 0.0})
 mcts1 = MCTS(g, n1, args1)
 def n1p(x): return np.argmax(mcts1.getActionProb(x, temp=0))
 
@@ -41,7 +41,7 @@ if human_vs_cpu:
 else:
     n2 = NNet(g)
     n2.load_checkpoint('./temp/', 'best.pth.tar')
-    args2 = dotdict({'numMCTSSims': 100, 'cpuct': 0.10})
+    args2 = dotdict({'numMCTSSims': 25, 'cpuct': 0.10})
     mcts2 = MCTS(g, n2, args2)
     def n2p(x): return np.argmax(mcts2.getActionProb(x, temp=0))
 

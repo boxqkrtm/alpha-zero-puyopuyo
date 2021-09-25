@@ -15,13 +15,12 @@ sys.path.append('../../')
 
 args = dotdict({
     'lr': 0.001,
-    'dropout': 0.3,
-    'epochs': 50,
+    'dropout': 0.1,
+    'epochs': 30,
     'batch_size': 512,
     'cuda': True,  # torch.cuda.is_available()
-    'num_channels': 512,
+    'num_channels': 64,
 })
-
 
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
@@ -31,14 +30,8 @@ class NNetWrapper(NeuralNet):
 
         if args.cuda:
             self.nnet.cuda()
-            # torch.cuda.set_per_process_memory_fraction(0.1)
-            # torch.cuda.empty_cache()
-
-    def share_memory(self):
-        self.nnet.share_memory()
-
-    def pin_memory(self):
-        self.nnet.pin_memory()
+            #torch.cuda.set_per_process_memory_fraction(0.1)
+            #torch.cuda.empty_cache()
 
     def train(self, examples):
         """
