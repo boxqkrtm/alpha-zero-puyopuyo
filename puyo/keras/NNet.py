@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 import argparse
 
-from .Connect4NNet import Connect4NNet as onnet
+from .PuyoNNet import PuyoNNet as onnet
 
 args = dotdict({
     'lr': 0.001,

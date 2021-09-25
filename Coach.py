@@ -136,7 +136,7 @@ def executeEpisode(pn, args, returndict):
         cboard = game.getCanonicalFormBoard(board, curPlayer)
 
         pi = mcts.getActionProb(cboard, temp=temp)
-        print("step")
+        #print("step")
         # pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
         trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(
             0)), curPlayer, pi, None])
@@ -222,7 +222,6 @@ class Coach():
                         manager = Manager()
                         returndict = manager.dict()
                         for a in range(threads):
-                            args = self.args
                             pro.append(Process(target=executeEpisode,
                                     args=(i, args, returndict)))
                         for a in pro:

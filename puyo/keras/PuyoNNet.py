@@ -63,7 +63,7 @@ def policy_head(input):
     flat = Flatten()(bn1_relu)
     return flat
 
-class Connect4NNet():
+class PuyoNNet():
     def __init__(self, game, args):
         # game params
         self.board_x, self.board_y = game.getBoardSize()
@@ -87,18 +87,6 @@ class Connect4NNet():
         self.pi = Dense(self.action_size, activation='softmax', name='pi')(policy_head(t))
         self.v = Dense(1, activation='tanh', name='v')(value_head(t))
         
-        self.calculate_loss()
-
         self.model = Model(inputs=self.input_boards, outputs=[self.pi, self.v])
-        self.model.compile(loss=[self.loss_pi ,self.loss_v], optimizer=Adam(args.lr))
-
-    def calculate_loss(self):
-        self.target_pis = tf.Variable(tf.ones(shape=[256, self.action_size], dtype=tf.float32))
-        self.target_vs = tf.Variable(tf.ones(shape=[256], dtype=tf.float32))
-        self.loss_pi =  tf.compat.v1.losses.softmax_cross_entropy(self.target_pis, self.pi)
-        self.loss_v = tf.compat.v1.losses.mean_squared_error(self.target_vs, tf.reshape(self.v, shape=[-1,]))
-        self.total_loss = self.loss_pi + self.loss_v
-        #update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
-        #with tf.control_dependencies(update_ops):
-        #    self.train_step = tf.compat.v1.train.AdamOptimizer(self.args.lr).minimize(self.total_loss)
-            
+        self.model.compile(
+            loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(args.lr))
