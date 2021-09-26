@@ -47,7 +47,7 @@ args = dotdict({
 })
 nowIter = 1
 proreturn = {}
-threads = 1
+threads = 4
 nnet = nn(Game())
 #nnet.share_memory()
 pnet = nn(Game())
@@ -264,18 +264,26 @@ class Coach():
             pro = []
             manager = Manager()
             returndict = manager.dict()
-            for a in range(int(threads/2)):
-                pro.append(Process(target=playGames, args=(
-                    int(self.args.arenaCompare/int(threads/2)), False, returndict, a)))
-            for a in pro:
-                a.start()
-            for a in pro:
-                a.join()
-            pwins, nwins, draws = 0, 0, 0
-            for a in returndict.values():
-                pwins += a[0]
-                nwins += a[1]
-                draws += a[2]
+            if(threads == 1):
+              playGames(self.args.arenaCompare, False, returndict, 0)
+              pwins, nwins, draws = 0, 0, 0
+              for a in returndict.values():
+                  pwins += a[0]
+                  nwins += a[1]
+                  draws += a[2]
+            else:
+              for a in range(int(threads/2)):
+                  pro.append(Process(target=playGames, args=(
+                      int(self.args.arenaCompare/int(threads/2)), False, returndict, a)))
+              for a in pro:
+                  a.start()
+              for a in pro:
+                  a.join()
+              pwins, nwins, draws = 0, 0, 0
+              for a in returndict.values():
+                  pwins += a[0]
+                  nwins += a[1]
+                  draws += a[2]
 
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' %
                      (nwins, pwins, draws))
