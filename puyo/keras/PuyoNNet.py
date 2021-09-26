@@ -77,8 +77,8 @@ def policy_head(input):
     return flat
 
 class PuyoNNet():
-    def __init__(self, game, args):
-        # game params
+
+    def createModel(self, game, args):
         self.board_x, self.board_y = game.getBoardSize()
         self.action_size = game.getActionSize()
         self.args = args
@@ -93,16 +93,20 @@ class PuyoNNet():
         conv1 = Conv2D(args.num_channels, kernel_size=3, strides=1, padding="same")(bn1)
         t = relu_bn(conv1)
 
-
         for i in range(self.args.num_residual_layers):
-                t = residual_block(t, filters=self.args.num_channels)
+            t = residual_block(t, filters=self.args.num_channels)
 
         self.pi = Dense(self.action_size, activation='softmax', name='pi')(policy_head(t))
         self.v = Dense(1, activation='tanh', name='v')(value_head(t))
+    def __init__(self, game, args):
+        # game params
+        
         if(hasTPU):
             with strategy.scope():
+                self.createModel(game, args)
                 self.model = Model(inputs=self.input_boards,outputs=[self.pi, self.v])
                 self.model.compile(loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(args.lr))
         else:
+            self.createModel(game, args)
             self.model = Model(inputs=self.input_boards, outputs=[self.pi, self.v])
             self.model.compile(loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(args.lr))
