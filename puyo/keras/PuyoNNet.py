@@ -13,6 +13,18 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.activations import *
 
+hasTPU = False
+try:
+    resolver = tf.distribute.cluster_resolver.TPUClusterResolver(
+        tpu='grpc://' + os.environ['COLAB_TPU_ADDR'])
+
+    tf.config.experimental_connect_to_cluster(resolver)
+    tf.tpu.experimental.initialize_tpu_system(resolver)
+    strategy = tf.distribute.TPUStrategy(resolver)
+    hasTPU = True
+except:
+    pass
+
 def relu_bn(inputs):
     relu1 = relu(inputs)
     bn = BatchNormalization()(relu1)
@@ -87,7 +99,10 @@ class PuyoNNet():
 
         self.pi = Dense(self.action_size, activation='softmax', name='pi')(policy_head(t))
         self.v = Dense(1, activation='tanh', name='v')(value_head(t))
-        
-        self.model = Model(inputs=self.input_boards, outputs=[self.pi, self.v])
-        self.model.compile(
-            loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(args.lr))
+        if(hasTPU):
+            with strategy.scope():
+                self.model = Model(inputs=self.input_boards,outputs=[self.pi, self.v])
+                self.model.compile(loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(args.lr))
+        else:
+            self.model = Model(inputs=self.input_boards, outputs=[self.pi, self.v])
+            self.model.compile(loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(args.lr))
