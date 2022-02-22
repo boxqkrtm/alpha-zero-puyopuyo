@@ -1,7 +1,7 @@
 import pyximport
 pyximport.install()
 from utils import *
-from puyo.keras.NNet import NNetWrapper as NNet
+from puyo.pytorch.NNet import NNetWrapper as NNet
 from puyo.PuyoPlayers import *
 from puyo.PuyoGame import PuyoGame as Game
 from MCTS import MCTS

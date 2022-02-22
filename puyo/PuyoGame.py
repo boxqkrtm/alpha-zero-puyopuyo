@@ -20,7 +20,8 @@ class PuyoGame(Game):
 
     def getBoardSize(self):
         # (a,b) tuple
-        return (14, 14)
+        #return (14, 14)
+        return (14,84)
 
     def getActionSize(self):
         # return number of actions

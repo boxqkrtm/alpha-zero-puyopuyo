@@ -9,7 +9,7 @@ from puyo.Duel import *
 from multiprocessing import Process, Queue, Manager
 import multiprocessing as mp
 from puyo.PuyoGame import PuyoGame as Game
-from puyo.keras.NNet import NNetWrapper as nn
+from puyo.pytorch.NNet import NNetWrapper as nn
 import gc
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,15 +29,15 @@ log = logging.getLogger(__name__)
 args = dotdict({
     'numIters': 1000,  # 1000
     # Number of complete self-play games to simulate during a new iteration.
-    'numEps': 100,  # 100
+    'numEps': 40,  # 100
     'tempThreshold': 15,        #
     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
     'updateThreshold': 0.55,
     # Number of game examples to train the neural networks.
-    'maxlenOfQueue': 200000,
+    'maxlenOfQueue': 2000000,
     'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
-    'arenaCompare': 40,  # 40
+    'arenaCompare': 10,  # 40
     'cpuct': 3,
 
     'checkpoint': './temp/',
@@ -91,7 +91,7 @@ def playGames(num, verbose=False, returndict=None, threadNum=None):
                 assert valids[action] > 0
             board, curPlayer = game.getNextStateRaw(
                 board, curPlayer, action)
-        gameResult = curPlayer * game.getGameEnded(board, curPlayer)
+        gameResult = curPlayer * game.getGameEnded(board, curPlayer) * -1
 
         if gameResult == 1:
             oneWon += 1
@@ -134,20 +134,21 @@ def executeEpisode(pn, args, returndict):
         episodeStep += 1
         temp = int(episodeStep < args.tempThreshold)
         cboard = game.getCanonicalFormBoard(board, curPlayer)
-
+        #plt.imshow(cboard.GrayScaleArray(cboard.getGameInfo(0)).reshape(14, 84))
+        #plt.show()
         pi = mcts.getActionProb(cboard, temp=temp)
         #print("step")
         # pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
         trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(
             0)), curPlayer, pi, None])
-
         action = np.random.choice(len(pi), p=pi)
         # print("coach")
         # board.print()
         board, curPlayer = game.getNextStateRaw(
             board, curPlayer, action)
         # print(pi)
-        r = game.getGameEnded(board, curPlayer)
+        r = curPlayer * game.getGameEnded(board, curPlayer) * -1
+        #r = game.getGameEnded(board, curPlayer)
         if r != 0:
             del mcts
             del board

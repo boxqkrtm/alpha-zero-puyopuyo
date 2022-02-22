@@ -25,7 +25,7 @@ args = dotdict({
     'batch_size': 64,
     'cuda': True,
     'num_channels': 128,
-    'num_residual_layers': 20
+    'num_residual_layers': 5
 })
 
 class NNetWrapper(NeuralNet):

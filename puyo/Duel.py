@@ -350,8 +350,8 @@ class Duel(object):
         dueldll.GameInfoToGrayScale.argtypes = [c_void_p]
         dueldll.GameInfoToGrayScale.restype = POINTER(c_float)
         vals = dueldll.GameInfoToGrayScale(gameInfo)
-        result = [vals[i] for i in range(14*14)]
-        result = np.reshape(result, (14, 14, 1))
+        result = [vals[i] for i in range(84*14)]
+        result = np.reshape(result, (14, 84, 1))
         self.GrayScaleDel(vals)
         # plt.imshow(result)
         # plt.show()
