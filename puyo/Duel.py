@@ -16,9 +16,9 @@ except:
         dueldll = cdll.LoadLibrary('./puyo/tuyotuyo.so')
     except:
         try:
-          dueldll = cdll.LoadLibrary('/usr/lib/tuyotuyo.so')
+            dueldll = cdll.LoadLibrary('/usr/lib/tuyotuyo.so')
         except:
-          print("dynamic link error")
+            print("dynamic link error")
 
 
 gcnt = 0
@@ -206,7 +206,7 @@ class Duel(object):
         index 0 is left-top
         '''
         dueldll.GameInfoGetMyField.argtypes = [c_void_p]
-        dueldll.GameInfoGetMyField.restype = POINTER(c_int32)
+        dueldll.GameInfoGetMyField.restype = POINTER(c_char)
         vals = dueldll.GameInfoGetMyField(gameInfo)
         valList = [vals[i] for i in range(13*6)]
         return valList
@@ -218,7 +218,7 @@ class Duel(object):
         index 0 is left-top
         '''
         dueldll.GameInfoGetOppField.argtypes = [c_void_p]
-        dueldll.GameInfoGetOppField.restype = POINTER(c_int32)
+        dueldll.GameInfoGetOppField.restype = POINTER(c_char)
         vals = dueldll.GameInfoGetOppField(gameInfo)
         valList = [vals[i] for i in range(13*6)]
         return valList
@@ -353,8 +353,6 @@ class Duel(object):
         result = [vals[i] for i in range(84*14)]
         result = np.reshape(result, (14, 84, 1))
         self.GrayScaleDel(vals)
-        # plt.imshow(result)
-        # plt.show()
         return result
 
     def GrayScaleDel(self, obj):

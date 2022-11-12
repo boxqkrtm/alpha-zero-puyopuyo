@@ -50,27 +50,26 @@ class MCTS():
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
         """
-        
-        #next 1 and next 2 visit
+
         d = Duel(duel=board)
-        self.search(d, depth = 0, first = True)
+        #self.search(d, depth=0)
         for i in range(self.args.numMCTSSims):
             d = Duel(duel=board)
-            #d.print()
-            #d = Duel()
+            # d.print()
+            # d = Duel()
             d.randUnknownData()
-            self.search(d, depth = 0)
+            self.search(d, depth=0)
         gi = board.getGameInfo(0)
-        #s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))
+        # s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))
         depth = 0
         a = ""
         nplayer = board.isPlayer
-        #s = str(depth)+"-"+str(a)+"-"+str(nplayer)
-        s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))+"-"+str(board.isPlayer)
-        #self.game.stringRepresentation(board)
+        # s = str(depth)+"-"+str(a)+"-"+str(nplayer)
+        s = str(board.GetFieldInfo(gi)) + \
+            str(board.GetOuterFieldInfo(gi))+"-"+str(board.isPlayer)
+        # self.game.stringRepresentation(board)
         counts = [self.Nsa[(s, a)] if (
             s, a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
-
         if temp == 0:
             bestAs = np.array(np.argwhere(counts == np.max(counts))).flatten()
             bestA = np.random.choice(bestAs)
@@ -80,10 +79,15 @@ class MCTS():
 
         counts = [x ** (1. / temp) for x in counts]
         counts_sum = float(sum(counts))
+        if(counts_sum == 0):
+            d.print()
+            print("S", s)
+            print("a", a)
+            print(self.Nsa[(s, a)])
         probs = [x / counts_sum for x in counts]
         return probs
 
-    def search(self, board, depth=0, first = False):
+    def search(self, board, depth=0, first=False):
         """
         This function performs one iteration of MCTS. It is recursively called
         till a leaf node is found. The action chosen at each node is one that
@@ -103,10 +107,11 @@ class MCTS():
             v: the negative of the value of the current canonicalBoard
         """
         gi = board.getGameInfo(0)
-        #s = str(depth)+"-"+str(a)+"-"+str(board.isPlayer)
-        s = str(board.GetFieldInfo(gi))+str(board.GetOuterFieldInfo(gi))+"-"+str(board.isPlayer)
-        #self.game.stringRepresentation(board)
-        #print(s)
+        # s = str(depth)+"-"+str(a)+"-"+str(board.isPlayer)
+        s = str(board.GetFieldInfo(gi)) + \
+            str(board.GetOuterFieldInfo(gi))+"-"+str(board.isPlayer)
+        # self.game.stringRepresentation(board)
+        # print(s)
         if s not in self.Es:
             self.Es[s] = self.game.getGameEnded(board, -1)
 
@@ -116,8 +121,9 @@ class MCTS():
 
         if s not in self.Ps:
             # leaf node
-            self.Ps[s], v = self.nnet.predict(board.GrayScaleArray(board.getGameInfo(0)))
-            #v = self.game.getFieldOjama(board, -1)
+            self.Ps[s], v = self.nnet.predict(
+                board.GrayScaleArray(board.getGameInfo(0)))
+            # v = self.game.getFieldOjama(board, -1)
             valids = self.game.getValidMoves(board, 1)
             self.Ps[s] = self.Ps[s] * valids  # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
@@ -129,7 +135,7 @@ class MCTS():
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.
                 log.error("All valid moves were masked, doing a workaround.")
-                #board.print()
+                # board.print()
                 print(valids)
                 print(self.Ps[s])
                 self.Ps[s] = self.Ps[s] + valids
@@ -146,8 +152,6 @@ class MCTS():
         cur_best = -float('inf')
         best_act = -1
 
-        
-
         # pick the action with the highest upper confidence bound
         for a in range(self.game.getActionSize()):
             if valids[a]:
@@ -162,9 +166,11 @@ class MCTS():
                     cur_best = u
                     best_act = a
                 if(first and depth == 0):
-                    next_board, next_player = self.game.getNextState(board, 1, a)
-                    cb = self.game.getCanonicalFormBoard(next_board, next_player)
-                    
+                    next_board, next_player = self.game.getNextState(
+                        board, 1, a)
+                    cb = self.game.getCanonicalFormBoard(
+                        next_board, next_player)
+
                     v = self.search(cb, depth+1)
 
                     if (s, a) in self.Qsa:
@@ -178,17 +184,11 @@ class MCTS():
 
                     self.Ns[s] += 1
 
-
-
         a = best_act
-        
-        #print(best_act)
 
-        #print("mcts")
-        #board.print()
         next_board, next_player = self.game.getNextStateRaw(board, 1, a)
         cb = self.game.getCanonicalFormBoardRaw(next_board, next_player)
-        
+
         v = self.search(cb, depth+1)
 
         if (s, a) in self.Qsa:

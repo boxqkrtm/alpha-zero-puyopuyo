@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 args = dotdict({
     'numIters': 1000,  # 1000
     # Number of complete self-play games to simulate during a new iteration.
-    'numEps': 40,  # 100
+    'numEps': 100,  # 100
     'tempThreshold': 15,        #
     # During arena playoff, new neural net will be accepted if threshold or more of games are won.
     'updateThreshold': 0.55,
@@ -37,7 +37,7 @@ args = dotdict({
     'maxlenOfQueue': 2000000,
     'numMCTSSims': 25,          # Number of games moves for MCTS to simulate.
     # Number of games to play during arena play to determine if new net will be accepted.
-    'arenaCompare': 10,  # 40
+    'arenaCompare': 40,  # 40
     'cpuct': 3,
 
     'checkpoint': './temp/',
@@ -49,12 +49,12 @@ nowIter = 1
 proreturn = {}
 threads = 4
 nnet = nn(Game())
-#nnet.share_memory()
+# nnet.share_memory()
 pnet = nn(Game())
-#pnet.share_memory()
+# pnet.share_memory()
 
 
-def playGames(num, verbose=False, returndict=None, threadNum=None):
+def playGames(num, verbose=True, returndict=None, threadNum=None):
     """
         Plays num games in which player1 starts num/2 games and player2 starts
         num/2 games.
@@ -135,9 +135,9 @@ def executeEpisode(pn, args, returndict):
         temp = int(episodeStep < args.tempThreshold)
         cboard = game.getCanonicalFormBoard(board, curPlayer)
         #plt.imshow(cboard.GrayScaleArray(cboard.getGameInfo(0)).reshape(14, 84))
-        #plt.show()
+        # plt.show()
         pi = mcts.getActionProb(cboard, temp=temp)
-        #print("step")
+        # print("step")
         # pi = self.mcts.getActionProb(Duel(duel=board), temp=temp)
         trainExamples.append([cboard.GrayScaleArray(cboard.getGameInfo(
             0)), curPlayer, pi, None])
@@ -152,7 +152,8 @@ def executeEpisode(pn, args, returndict):
         if r != 0:
             del mcts
             del board
-            returndict[pn] = [(x[0], x[2], r * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
+            returndict[pn] = [
+                (x[0], x[2], r * ((-1) ** (x[1] != curPlayer))) for x in trainExamples]
             return
 
 
@@ -200,8 +201,7 @@ class Coach():
                     except:
                         print("no model")
                 else:
-                    pass
-                    # log.warning('Not loading a checkpoint!')
+                    print("no model")
                 if(threads == 1):
                     for _ in tqdm(range(0, self.args.numEps, threads), desc="Self Play"):
                         # reset search tree
@@ -224,7 +224,7 @@ class Coach():
                         returndict = manager.dict()
                         for a in range(threads):
                             pro.append(Process(target=executeEpisode,
-                                    args=(i, args, returndict)))
+                                               args=(i, args, returndict)))
                         for a in pro:
                             a.start()
                         for a in pro:
@@ -266,25 +266,25 @@ class Coach():
             manager = Manager()
             returndict = manager.dict()
             if(threads == 1):
-              playGames(self.args.arenaCompare, False, returndict, 0)
-              pwins, nwins, draws = 0, 0, 0
-              for a in returndict.values():
-                  pwins += a[0]
-                  nwins += a[1]
-                  draws += a[2]
+                playGames(self.args.arenaCompare, False, returndict, 0)
+                pwins, nwins, draws = 0, 0, 0
+                for a in returndict.values():
+                    pwins += a[0]
+                    nwins += a[1]
+                    draws += a[2]
             else:
-              for a in range(int(threads/2)):
-                  pro.append(Process(target=playGames, args=(
-                      int(self.args.arenaCompare/int(threads/2)), False, returndict, a)))
-              for a in pro:
-                  a.start()
-              for a in pro:
-                  a.join()
-              pwins, nwins, draws = 0, 0, 0
-              for a in returndict.values():
-                  pwins += a[0]
-                  nwins += a[1]
-                  draws += a[2]
+                for a in range(int(threads/2)):
+                    pro.append(Process(target=playGames, args=(
+                        int(self.args.arenaCompare/int(threads/2)), False, returndict, a)))
+                for a in pro:
+                    a.start()
+                for a in pro:
+                    a.join()
+                pwins, nwins, draws = 0, 0, 0
+                for a in returndict.values():
+                    pwins += a[0]
+                    nwins += a[1]
+                    draws += a[2]
 
             log.info('NEW/PREV WINS : %d / %d ; DRAWS : %d' %
                      (nwins, pwins, draws))
