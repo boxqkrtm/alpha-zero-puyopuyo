@@ -4,22 +4,16 @@
 from ctypes import *
 import numpy as np
 import random
+import os
 import matplotlib.pyplot as plt
 
 EPS = 1e-8
 
-dueldll = 0
-try:
-    dueldll = cdll.LoadLibrary('./puyo/tuyotuyo')
-except:
-    try:
-        dueldll = cdll.LoadLibrary('./puyo/tuyotuyo.so')
-    except:
-        try:
-            dueldll = cdll.LoadLibrary('/usr/lib/tuyotuyo.so')
-        except:
-            print("dynamic link error")
-
+dueldll = None
+if os.name == 'posix':
+   dueldll = cdll.LoadLibrary('./puyo/tuyotuyo.so')
+else:
+   dueldll = cdll.LoadLibrary('./puyo/tuyotuyo')
 
 gcnt = 0
 

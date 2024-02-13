@@ -2,7 +2,7 @@
 import numpy as np
 
 
-class RandomPlayer():
+class RandomPlayer:
     def __init__(self, game):
         self.game = game
 
@@ -14,7 +14,7 @@ class RandomPlayer():
         return a
 
 
-class HumanOthelloPlayer():
+class HumanOthelloPlayer:
     def __init__(self, game):
         self.game = game
 
@@ -28,7 +28,7 @@ class HumanOthelloPlayer():
             input_move = input()
             input_a = input_move
             try:
-                if(valid[int(input_a)] == 1):
+                if valid[int(input_a)] == 1:
                     a = int(input_a)
                     return a
                 else:
@@ -39,7 +39,7 @@ class HumanOthelloPlayer():
                 print('Invalid move')
 
 
-class GreedyOthelloPlayer():
+class GreedyOthelloPlayer:
     def __init__(self, game):
         self.game = game
 

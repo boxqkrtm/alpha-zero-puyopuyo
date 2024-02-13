@@ -29,7 +29,7 @@ hp = HumanOthelloPlayer(g).play
 
 # nnet players
 n1 = NNet(g)
-#n1.load_checkpoint('./temp/', 'best.pth.tar')
+# n1.load_checkpoint('./temp/', 'best.pth.tar')
 n1.load_checkpoint('./temp/', 'best.pth.tar')
 args1 = dotdict({'numMCTSSims': 25, 'cpuct': 0.0})
 mcts1 = MCTS(g, n1, args1)
@@ -47,7 +47,7 @@ else:
 
     player2 = n2p  # Player 2 is neural network if it's cpu vs cpu.
     #player2 = rp
-while(True):
+while True:
 
     arena = Arena.Arena(n1p, player2, g, display=Game.display)
 
